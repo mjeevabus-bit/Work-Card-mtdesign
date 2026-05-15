@@ -1,0 +1,438 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>設計部派工系統 V2.0 - Tech Edition</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/tabler-icons.min.css">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=JetBrains+Mono&display=swap" rel="stylesheet">
+  
+  <style>
+    :root {
+      /* 科技感深色調 */
+      --bg-dark: #0a0c10;
+      --card-bg: rgba(22, 27, 34, 0.7);
+      --border-color: rgba(48, 54, 61, 0.8);
+      
+      --accent-primary: #00f2ff; /* 電光青 */
+      --accent-secondary: #7000ff; /* 極光紫 */
+      --accent-success: #3fb950;
+      --accent-warning: #d29922;
+      --accent-danger: #f85149;
+      
+      --text-main: #e6edf3;
+      --text-muted: #8b949e;
+      
+      --glow: 0 0 15px rgba(0, 242, 255, 0.3);
+      --transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    
+    body {
+      background-color: var(--bg-dark);
+      background-image: 
+        radial-gradient(circle at 10% 20%, rgba(112, 0, 255, 0.05) 0%, transparent 40%),
+        radial-gradient(circle at 90% 80%, rgba(0, 242, 255, 0.05) 0%, transparent 40%);
+      color: var(--text-main);
+      font-family: 'Inter', system-ui, -apple-system, sans-serif;
+      line-height: 1.6;
+      min-height: 100vh;
+      padding-bottom: 4rem;
+    }
+
+    .wrap {
+      max-width: 800px;
+      margin: 0 auto;
+      padding: 2rem 1rem;
+    }
+
+    /* 頂部標題 */
+    .header-main {
+      text-align: center;
+      margin-bottom: 2.5rem;
+    }
+    .header-main h1 {
+      font-size: 1.8rem;
+      font-weight: 600;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      background: linear-gradient(to right, var(--accent-primary), var(--accent-secondary));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      margin-bottom: 0.5rem;
+    }
+
+    /* 步驟指示器 */
+    .step-indicator {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 2.5rem;
+    }
+    .step {
+      flex: 1;
+      padding: 12px;
+      background: var(--card-bg);
+      border: 1px solid var(--border-color);
+      border-radius: 4px;
+      text-align: center;
+      font-size: 0.75rem;
+      color: var(--text-muted);
+      position: relative;
+      overflow: hidden;
+      transition: var(--transition);
+    }
+    .step.active {
+      border-color: var(--accent-primary);
+      color: var(--accent-primary);
+      box-shadow: var(--glow);
+    }
+    .step.done {
+      border-color: var(--accent-success);
+      color: var(--accent-success);
+    }
+    .step-num {
+      display: block;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 1rem;
+      font-weight: 600;
+      margin-bottom: 2px;
+    }
+
+    /* 卡片容器 */
+    .glass-card {
+      background: var(--card-bg);
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+      border: 1px solid var(--border-color);
+      border-radius: 12px;
+      padding: 2rem;
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+    }
+
+    /* 分區標題 */
+    .section-header {
+      display: flex;
+      align-items: center;
+      gap: 15px;
+      margin: 2rem 0 1.5rem;
+    }
+    .section-title {
+      font-size: 0.9rem;
+      font-weight: 600;
+      color: var(--accent-primary);
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+    .divider {
+      flex: 1;
+      height: 1px;
+      background: linear-gradient(to right, var(--border-color), transparent);
+    }
+
+    /* 表單元件 */
+    .field-group { margin-bottom: 1.5rem; }
+    .field-label {
+      display: block;
+      font-size: 0.85rem;
+      color: var(--text-muted);
+      margin-bottom: 8px;
+    }
+    .field-label .req { color: var(--accent-danger); margin-left: 4px; }
+
+    input[type="text"], input[type="date"], select, textarea {
+      width: 100%;
+      background: rgba(13, 17, 23, 0.8);
+      border: 1px solid var(--border-color);
+      border-radius: 6px;
+      color: var(--text-main);
+      padding: 12px 16px;
+      font-size: 0.95rem;
+      transition: var(--transition);
+      font-family: inherit;
+    }
+    input:focus, select:focus, textarea:focus {
+      outline: none;
+      border-color: var(--accent-primary);
+      box-shadow: 0 0 0 2px rgba(0, 242, 255, 0.1);
+    }
+
+    /* 網格系統 */
+    .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+    @media (max-width: 600px) { .grid-2 { grid-template-columns: 1fr; } }
+
+    /* 等級選擇卡片 */
+    .level-cards { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
+    .level-card {
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      padding: 15px;
+      cursor: pointer;
+      text-align: center;
+      transition: var(--transition);
+      background: rgba(255, 255, 255, 0.02);
+    }
+    .level-card:hover { border-color: var(--text-muted); }
+    .level-card input { display: none; }
+    
+    .level-card.sel-s { border-color: var(--accent-danger); background: rgba(248, 81, 73, 0.05); box-shadow: 0 0 10px rgba(248, 81, 73, 0.1); }
+    .level-card.sel-a { border-color: var(--accent-warning); background: rgba(210, 153, 34, 0.05); }
+    .level-card.sel-b { border-color: var(--accent-primary); background: rgba(0, 242, 255, 0.05); }
+
+    .level-name { font-weight: 600; font-size: 1.1rem; margin-bottom: 4px; }
+    .level-desc { font-size: 0.7rem; color: var(--text-muted); }
+
+    /* 按鈕樣式 */
+    .btn-submit {
+      width: 100%;
+      padding: 14px;
+      border: none;
+      border-radius: 6px;
+      background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary));
+      color: white;
+      font-size: 1rem;
+      font-weight: 600;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      transition: var(--transition);
+      margin-top: 1rem;
+    }
+    .btn-submit:hover {
+      opacity: 0.9;
+      transform: translateY(-1px);
+      box-shadow: 0 5px 20px rgba(0, 242, 255, 0.4);
+    }
+    .btn-submit:disabled { filter: grayscale(1); cursor: not-allowed; }
+
+    /* 成功畫面 */
+    .success-panel {
+      text-align: center;
+      padding: 3rem 1rem;
+      display: none;
+    }
+    .success-icon {
+      font-size: 4rem;
+      color: var(--accent-success);
+      margin-bottom: 1.5rem;
+      filter: drop-shadow(0 0 10px rgba(63, 185, 80, 0.4));
+    }
+    .ticket-id {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 1.5rem;
+      color: var(--accent-primary);
+      margin: 1.5rem 0;
+      padding: 10px 20px;
+      border: 1px dashed var(--accent-primary);
+      display: inline-block;
+    }
+
+    /* 檔案晶片 */
+    .file-chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 6px 12px;
+      background: rgba(0, 242, 255, 0.1);
+      border: 1px solid var(--accent-primary);
+      border-radius: 20px;
+      font-size: 0.8rem;
+      margin: 4px;
+    }
+    .file-chip button {
+      background: none; border: none; color: var(--accent-danger); cursor: pointer; font-size: 1rem;
+    }
+
+    .notice-bar {
+      background: rgba(210, 153, 34, 0.1);
+      border-left: 4px solid var(--accent-warning);
+      padding: 15px;
+      border-radius: 4px;
+      font-size: 0.85rem;
+      margin-bottom: 2rem;
+    }
+  </style>
+</head>
+<body>
+
+<div class="wrap">
+  <div class="header-main">
+    <h1>Design Dispatch System</h1>
+    <p style="color: var(--text-muted); font-size: 0.8rem;">設計部智慧派工申請平台 V2.0</p>
+  </div>
+
+  <div id="formArea">
+    <div class="step-indicator">
+      <div class="step active" id="st1"><span class="step-num">01</span>INFO</div>
+      <div class="step" id="st2"><span class="step-num">02</span>TYPE</div>
+      <div class="step" id="st3"><span class="step-num">03</span>SPEC</div>
+      <div class="step" id="st4"><span class="step-num">04</span>DATA</div>
+    </div>
+
+    <div class="notice-bar">
+      <i class="ti ti-info-circle"></i> <strong>提報核心原理：</strong>文案需為最終品質版本。規格不明或文案未定之案件將延後處理。
+    </div>
+
+    <div class="glass-card">
+      <div class="section-header">
+        <span class="section-title">01 基礎資訊</span>
+        <div class="divider"></div>
+      </div>
+
+      <div class="grid-2">
+        <div class="field-group">
+          <label class="field-label">需求單位 <span class="req">*</span></label>
+          <select id="dept" onchange="updateStep()">
+            <option value="">SELECT DEPT</option>
+            <option>泰武咖啡生產合作社</option>
+            <option>卡彿魯岸（瑞民店）</option>
+            <option>生技研發</option>
+            <option>倉儲管理</option>
+            <option>行銷／電商</option>
+            <option>專案部</option>
+          </select>
+        </div>
+        <div class="field-group">
+          <label class="field-label">申請人姓名 <span class="req">*</span></label>
+          <input type="text" id="applicant" placeholder="ENTER NAME" oninput="updateStep()">
+        </div>
+      </div>
+
+      <div class="field-group">
+        <label class="field-label">活動名稱 <span class="req">*</span></label>
+        <input type="text" id="caseName" placeholder="PROJECT TITLE" oninput="updateStep()">
+      </div>
+
+      <div class="section-header">
+        <span class="section-title">02 級別與用途</span>
+        <div class="divider"></div>
+      </div>
+
+      <div class="field-group">
+        <label class="field-label">專案等級 <span class="req">*</span></label>
+        <div class="level-cards">
+          <label class="level-card" id="lc-s" onclick="selectLevel('S',this)">
+            <input type="radio" name="level" value="S">
+            <div class="level-name" style="color:var(--accent-danger)">S-CLASS</div>
+            <div class="level-desc">標案 / 重要包裝</div>
+          </label>
+          <label class="level-card" id="lc-a" onclick="selectLevel('A',this)">
+            <input type="radio" name="level" value="A">
+            <div class="level-name" style="color:var(--accent-warning)">A-CLASS</div>
+            <div class="level-desc">核心推廣專案</div>
+          </label>
+          <label class="level-card" id="lc-b" onclick="selectLevel('B',this)">
+            <input type="radio" name="level" value="B">
+            <div class="level-name" style="color:var(--accent-primary)">B-CLASS</div>
+            <div class="level-desc">日常庶務 / 修改</div>
+          </label>
+        </div>
+      </div>
+
+      <div class="section-header">
+        <span class="section-title">03 文案內容</span>
+        <div class="divider"></div>
+      </div>
+
+      <div class="field-group">
+        <label class="field-label">最終確認文案 <span class="req">*</span></label>
+        <textarea id="copy" placeholder="請貼上完整文字內容..." style="min-height:150px" oninput="updateStep()"></textarea>
+      </div>
+
+      <div id="errorBar" style="display:none; color:var(--accent-danger); font-size:0.85rem; margin-bottom:1rem; padding:10px; border:1px solid var(--accent-danger); border-radius:4px; background:rgba(248,81,73,0.1);"></div>
+
+      <button class="btn-submit" id="submitBtn" onclick="submitForm()">
+        <i class="ti ti-rocket"></i> INITIALIZE SUBMISSION
+      </button>
+    </div>
+  </div>
+
+  <div class="success-panel glass-card" id="successPanel">
+    <div class="success-icon"><i class="ti ti-circle-check"></i></div>
+    <h2 style="color: var(--accent-success);">TRANSMISSION COMPLETE</h2>
+    <p style="color: var(--text-muted);">派工單已成功存入雲端數據庫</p>
+    <div class="ticket-id" id="ticketId">DES-2025-0000</div>
+    <br>
+    <button class="btn-submit" style="background:var(--card-bg); border:1px solid var(--accent-primary); width:auto; display:inline-flex;" onclick="location.reload()">
+      NEW REQUEST
+    </button>
+  </div>
+</div>
+
+<script>
+  // 保持原有邏輯不變，僅更新 UI 相關 ID
+  const SHEET_URL = "https://script.google.com/macros/s/AKfycbxCyEEwkiwEUbCBf1NsOWdmhUaB98PDt39F2HI3L0ey7gCg6w8dyXx-ORoqe0u396Be/exec";
+
+  function updateStep() {
+    const ok1 = document.getElementById('dept').value && document.getElementById('applicant').value && document.getElementById('caseName').value;
+    document.getElementById('st1').className = 'step ' + (ok1 ? 'done' : 'active');
+    
+    const c = document.getElementById('copy').value.trim();
+    document.getElementById('st4').className = 'step ' + (c.length > 10 ? 'done' : '');
+  }
+
+  function selectLevel(code, card) {
+    ['lc-s','lc-a','lc-b'].forEach(id => document.getElementById(id).className = 'level-card');
+    card.className = 'level-card sel-' + code.toLowerCase();
+    document.getElementById('st2').className = 'step done';
+  }
+
+  function genTicketId() {
+    const now = new Date();
+    return 'TX-' + now.getFullYear() + '-' + Math.floor(1000 + Math.random() * 9000);
+  }
+
+  async function submitForm() {
+    const btn = document.getElementById('submitBtn');
+    const err = document.getElementById('errorBar');
+    err.style.display = 'none';
+
+    // 基礎驗證
+    const dept = document.getElementById('dept').value;
+    const applicant = document.getElementById('applicant').value;
+    const caseName = document.getElementById('caseName').value;
+    const copy = document.getElementById('copy').value;
+    const levelEl = document.querySelector('.level-card[class*="sel-"]');
+
+    if (!dept || !applicant || !caseName || !copy || !levelEl) {
+      err.textContent = "CRITICAL ERROR: INCOMPLETE DATA FIELDS";
+      err.style.display = 'block';
+      return;
+    }
+
+    btn.disabled = true;
+    btn.innerHTML = '<i class="ti ti-loader-2 animate-spin"></i> SYNCING...';
+
+    const ticketId = genTicketId();
+    const payload = {
+      ticketId,
+      timestamp: new Date().toLocaleString(),
+      dept, applicant, caseName, copy,
+      level: levelEl.querySelector('input').value,
+      status: '待處理'
+    };
+
+    try {
+      await fetch(SHEET_URL, {
+        method: 'POST',
+        mode: 'no-cors',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+      });
+      
+      document.getElementById('ticketId').textContent = ticketId;
+      document.getElementById('formArea').style.display = 'none';
+      document.getElementById('successPanel').style.display = 'block';
+    } catch (e) {
+      err.textContent = "CONNECTION FAILED: " + e.message;
+      err.style.display = 'block';
+      btn.disabled = false;
+      btn.innerHTML = 'RETRY SUBMISSION';
+    }
+  }
+</script>
+
+</body>
+</html>
