@@ -1,529 +1,359 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Design Center | 需求申請系統</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/tabler-icons.min.css">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+  
+  <style>
+    :root {
+      --primary: #0052CC; /* Jira Blue */
+      --primary-hover: #0747A6;
+      --bg-app: #FAFBFC;
+      --bg-sidebar: #FFFFFF;
+      --border: #DFE1E6;
+      --text-dark: #172B4D;
+      --text-muted: #6B778C;
+      --success: #36B37E;
+      --warning: #FFAB00;
+      --danger: #FF5630;
+      --shadow: 0 1px 2px rgba(0,0,0,0.08), 0 4px 12px rgba(0,0,0,0.05);
+    }
 
-<style>
-  :root {
-    --amber-50: #FAEEDA; --amber-100: #FAC775; --amber-400: #BA7517; --amber-600: #854F0B; --amber-800: #633806;
-    --teal-50: #E1F5EE; --teal-100: #9FE1CB; --teal-400: #1D9E75; --teal-600: #0F6E56; --teal-800: #085041;
-    --coral-50: #FAECE7; --coral-100: #F5C4B3; --coral-400: #D85A30; --coral-600: #993C1D; --coral-800: #712B13;
-    --gray-50: #F1EFE8; --gray-100: #D3D1C7; --gray-400: #888780; --gray-600: #5F5E5A; --gray-800: #444441;
-    --blue-50: #E6F1FB; --blue-100: #B5D4F4; --blue-400: #378ADD; --blue-600: #185FA5; --blue-800: #0C447C;
-    --green-50: #EAF3DE; --green-100: #C0DD97; --green-400: #639922; --green-600: #3B6D11;
-  }
-  * { box-sizing: border-box; margin: 0; padding: 0; }
-  body { font-family: var(--font-sans, system-ui); }
-  .wrap { padding: 1.5rem 1rem; max-width: 720px; margin: 0 auto; }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: 'Inter', system-ui, sans-serif; background: var(--bg-app); color: var(--text-dark); display: flex; min-height: 100vh; }
 
-  .notice-bar {
-    background: var(--amber-50); border: 0.5px solid var(--amber-100);
-    border-left: 3px solid var(--amber-400); border-radius: 0 var(--border-radius-md,8px) var(--border-radius-md,8px) 0;
-    padding: 10px 14px; font-size: 13px; color: var(--amber-800);
-    margin-bottom: 1.5rem; line-height: 1.6;
-  }
-  .notice-bar strong { color: var(--amber-600); font-weight: 500; }
+    /* 左側規範面板 - 模擬 Jira Sidebar */
+    .sidebar {
+      width: 320px;
+      background: var(--bg-sidebar);
+      border-right: 1px solid var(--border);
+      padding: 2rem;
+      position: sticky;
+      top: 0;
+      height: 100vh;
+      overflow-y: auto;
+    }
 
-  .section-header { display: flex; align-items: center; gap: 10px; margin: 1.5rem 0 1rem; }
-  .section-badge { font-size: 11px; font-weight: 500; padding: 3px 9px; border-radius: 20px; letter-spacing: 0.5px; white-space: nowrap; }
-  .badge-gray { background: var(--gray-50); color: var(--gray-600); border: 0.5px solid var(--gray-100); }
-  .badge-teal { background: var(--teal-50); color: var(--teal-600); border: 0.5px solid var(--teal-100); }
-  .badge-blue { background: var(--blue-50); color: var(--blue-600); border: 0.5px solid var(--blue-100); }
-  .section-title { font-size: 15px; font-weight: 500; color: var(--color-text-primary); }
-  .divider { flex: 1; height: 0.5px; background: var(--color-border-tertiary); }
+    .sidebar h2 { font-size: 1.25rem; font-weight: 600; margin-bottom: 1.5rem; color: var(--primary); display: flex; align-items: center; gap: 8px; }
+    .rules-box { font-size: 0.85rem; color: var(--text-muted); line-height: 1.6; }
+    .rules-box strong { color: var(--text-dark); }
+    .rules-section { margin-bottom: 1.5rem; padding-bottom: 1rem; border-bottom: 1px solid var(--bg-app); }
+    
+    .timeline-table { width: 100%; border-collapse: collapse; margin-top: 10px; font-size: 0.75rem; }
+    .timeline-table th { text-align: left; background: var(--bg-app); padding: 6px; }
+    .timeline-table td { padding: 6px; border-bottom: 1px solid var(--bg-app); }
 
-  .field-group { margin-bottom: 1.1rem; }
-  .field-label { display: block; font-size: 13px; font-weight: 500; color: var(--color-text-secondary); margin-bottom: 5px; }
-  .field-label .req { color: var(--coral-400); margin-left: 2px; }
-  .field-hint { font-size: 12px; color: var(--color-text-tertiary); margin-top: 4px; line-height: 1.5; }
+    /* 右側主內容區 */
+    .main-content { flex: 1; padding: 2.5rem; display: flex; justify-content: center; }
+    .form-container { width: 100%; max-width: 800px; }
 
-  input[type="text"], input[type="date"], select, textarea {
-    width: 100%; border-radius: var(--border-radius-md,8px);
-    border: 0.5px solid var(--color-border-secondary);
-    background: var(--color-background-primary); color: var(--color-text-primary);
-    font-family: inherit; font-size: 14px; padding: 8px 11px; transition: border-color 0.15s;
-  }
-  input[type="text"]:focus, input[type="date"]:focus, select:focus, textarea:focus {
-    outline: none; border-color: var(--teal-400); box-shadow: 0 0 0 2px rgba(29,158,117,0.12);
-  }
-  textarea { resize: vertical; min-height: 90px; line-height: 1.6; }
+    .card { background: #fff; border: 1px solid var(--border); border-radius: 8px; padding: 2.5rem; box-shadow: var(--shadow); }
+    .form-header { margin-bottom: 2rem; border-bottom: 2px solid var(--bg-app); padding-bottom: 1rem; }
+    .form-header h1 { font-size: 1.5rem; font-weight: 600; }
+    .form-header p { color: var(--text-muted); font-size: 0.9rem; margin-top: 4px; }
 
-  .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
-  @media (max-width: 520px) { .grid-2 { grid-template-columns: 1fr; } }
+    /* 表單元件樣式 */
+    .section-label { font-size: 0.75rem; font-weight: 700; color: var(--text-muted); text-transform: uppercase; letter-spacing: 1px; margin: 2rem 0 1rem; display: block; }
+    .field-group { margin-bottom: 1.5rem; }
+    .label-text { display: block; font-size: 0.9rem; font-weight: 500; margin-bottom: 6px; }
+    .label-text .req { color: var(--danger); margin-left: 4px; }
+    
+    input[type="text"], input[type="date"], select, textarea {
+      width: 100%; padding: 10px 12px; border: 2px solid var(--border); border-radius: 4px;
+      font-size: 0.95rem; font-family: inherit; transition: all 0.2s; background: #F4F5F7;
+    }
+    input:focus, select:focus, textarea:focus { outline: none; border-color: var(--primary); background: #fff; box-shadow: 0 0 0 3px rgba(0, 82, 204, 0.1); }
+    
+    .hint { font-size: 0.8rem; color: var(--text-muted); margin-top: 6px; line-height: 1.4; }
 
-  .checkbox-group { display: flex; flex-direction: column; gap: 6px; margin-top: 2px; }
-  .checkbox-item {
-    display: flex; align-items: center; gap: 9px; padding: 7px 10px;
-    border-radius: var(--border-radius-md,8px); border: 0.5px solid var(--color-border-tertiary);
-    cursor: pointer; transition: background 0.12s; font-size: 14px; color: var(--color-text-primary);
-  }
-  .checkbox-item:hover { background: var(--color-background-secondary); }
-  .checkbox-item input { accent-color: var(--teal-400); width: 15px; height: 15px; cursor: pointer; }
+    .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+    @media (max-width: 600px) { .grid-2 { grid-template-columns: 1fr; } }
 
-  .radio-row { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 2px; }
-  .radio-pill {
-    display: flex; align-items: center; gap: 7px; padding: 6px 14px; border-radius: 20px;
-    border: 0.5px solid var(--color-border-secondary); cursor: pointer; transition: all 0.12s;
-    font-size: 13px; color: var(--color-text-secondary); background: var(--color-background-primary);
-  }
-  .radio-pill:hover { border-color: var(--teal-400); color: var(--color-text-primary); }
-  .radio-pill input { display: none; }
-  .radio-pill.selected { background: var(--teal-50); border-color: var(--teal-400); color: var(--teal-600); font-weight: 500; }
+    /* 專業等級選擇器 */
+    .level-selector { display: flex; gap: 12px; margin-top: 8px; }
+    .level-btn {
+      flex: 1; border: 2px solid var(--border); border-radius: 6px; padding: 12px;
+      text-align: center; cursor: pointer; transition: var(--transition); background: var(--bg-app);
+    }
+    .level-btn:hover { border-color: var(--text-muted); }
+    .level-btn.active[data-level="S"] { border-color: var(--danger); background: #FFEBE6; color: var(--danger); }
+    .level-btn.active[data-level="A"] { border-color: var(--warning); background: #FFF0B3; color: #855700; }
+    .level-btn.active[data-level="B"] { border-color: var(--primary); background: #DEEBFF; color: var(--primary); }
+    .level-title { font-weight: 700; font-size: 1.1rem; display: block; }
+    .level-subtitle { font-size: 0.7rem; }
 
-  .level-cards { display: grid; grid-template-columns: repeat(3,1fr); gap: 8px; margin-top: 4px; }
-  @media (max-width: 520px) { .level-cards { grid-template-columns: 1fr; } }
-  .level-card {
-    border: 0.5px solid var(--color-border-tertiary); border-radius: var(--border-radius-md,8px);
-    padding: 12px; cursor: pointer; transition: all 0.15s; text-align: center;
-  }
-  .level-card:hover { border-color: var(--color-border-secondary); background: var(--color-background-secondary); }
-  .level-card.sel-s { background: var(--coral-50); border-color: var(--coral-400); }
-  .level-card.sel-a { background: var(--amber-50); border-color: var(--amber-400); }
-  .level-card.sel-b { background: var(--blue-50); border-color: var(--blue-400); }
-  .level-card input { display: none; }
-  .level-icon { font-size: 20px; margin-bottom: 4px; }
-  .level-name { font-size: 14px; font-weight: 500; }
-  .level-desc { font-size: 11px; margin-top: 3px; }
-  .level-icon, .level-name { color: var(--color-text-secondary); }
-  .level-desc { color: var(--color-text-tertiary); }
-  .level-card.sel-s .level-name, .level-card.sel-s .level-icon { color: var(--coral-600); }
-  .level-card.sel-s .level-desc { color: var(--coral-400); }
-  .level-card.sel-a .level-name, .level-card.sel-a .level-icon { color: var(--amber-600); }
-  .level-card.sel-a .level-desc { color: var(--amber-400); }
-  .level-card.sel-b .level-name, .level-card.sel-b .level-icon { color: var(--blue-600); }
-  .level-card.sel-b .level-desc { color: var(--blue-400); }
+    /* 按鈕 */
+    .btn-primary {
+      background: var(--primary); color: white; border: none; padding: 12px 24px;
+      border-radius: 4px; font-weight: 600; cursor: pointer; transition: 0.2s;
+      display: inline-flex; align-items: center; gap: 8px; font-size: 1rem;
+    }
+    .btn-primary:hover { background: var(--primary-hover); transform: translateY(-1px); }
+    .btn-primary:disabled { background: var(--border); cursor: not-allowed; }
 
-  .date-warning {
-    display: none; background: var(--amber-50); border: 0.5px solid var(--amber-100);
-    border-left: 3px solid var(--amber-400); border-radius: 0 6px 6px 0;
-    padding: 7px 11px; font-size: 12px; color: var(--amber-800); margin-top: 6px;
-  }
-  .print-follow {
-    display: none; margin-top: 8px; background: var(--gray-50);
-    border-radius: var(--border-radius-md,8px); border: 0.5px solid var(--color-border-tertiary); padding: 10px 14px;
-  }
+    /* 成功面板 */
+    .success-panel { display: none; text-align: center; padding: 3rem 0; }
+    .success-icon { font-size: 4rem; color: var(--success); margin-bottom: 1rem; }
+  </style>
+</head>
+<body>
 
-  .file-zone {
-    border: 1px dashed var(--color-border-secondary); border-radius: var(--border-radius-md,8px);
-    padding: 20px; text-align: center; cursor: pointer; transition: all 0.15s;
-    background: var(--color-background-secondary);
-  }
-  .file-zone:hover { border-color: var(--teal-400); background: var(--teal-50); }
-  .file-zone i { font-size: 24px; color: var(--color-text-tertiary); margin-bottom: 6px; display: block; }
-  .file-zone p { font-size: 13px; color: var(--color-text-secondary); }
-  .file-zone input { display: none; }
-  .file-list { margin-top: 8px; display: flex; flex-wrap: wrap; gap: 6px; }
-  .file-chip {
-    display: flex; align-items: center; gap: 6px; padding: 4px 10px;
-    background: var(--teal-50); border: 0.5px solid var(--teal-100); border-radius: 20px;
-    font-size: 12px; color: var(--teal-600);
-  }
-  .file-chip button { border: none; background: none; cursor: pointer; color: var(--teal-400); font-size: 14px; padding: 0; line-height: 1; }
-
-  .submit-row {
-    margin-top: 2rem; padding-top: 1.5rem; border-top: 0.5px solid var(--color-border-tertiary);
-    display: flex; gap: 10px; align-items: center; flex-wrap: wrap;
-  }
-  .btn-submit {
-    padding: 10px 24px; border-radius: var(--border-radius-md,8px); background: var(--teal-400);
-    color: #fff; border: none; font-size: 14px; font-weight: 500; cursor: pointer;
-    transition: background 0.15s; display: flex; align-items: center; gap: 7px;
-  }
-  .btn-submit:hover { background: var(--teal-600); }
-  .btn-submit:disabled { opacity: 0.6; cursor: not-allowed; }
-  .btn-reset {
-    padding: 10px 18px; border-radius: var(--border-radius-md,8px);
-    background: var(--color-background-primary); color: var(--color-text-secondary);
-    border: 0.5px solid var(--color-border-secondary); font-size: 14px; cursor: pointer;
-  }
-  .btn-reset:hover { background: var(--color-background-secondary); }
-  .submit-note { font-size: 12px; color: var(--color-text-tertiary); margin-left: auto; }
-
-  .success-panel { display: none; text-align: center; padding: 2.5rem 1rem; }
-  .success-icon {
-    width: 56px; height: 56px; border-radius: 50%; background: var(--teal-50);
-    display: flex; align-items: center; justify-content: center; margin: 0 auto 1rem;
-  }
-  .success-icon i { font-size: 28px; color: var(--teal-600); }
-  .success-panel h3 { font-size: 18px; font-weight: 500; color: var(--color-text-primary); margin-bottom: 8px; }
-  .success-panel p { font-size: 14px; color: var(--color-text-secondary); line-height: 1.6; }
-  .ticket-id {
-    display: inline-block; margin-top: 1rem; background: var(--teal-50);
-    border: 0.5px solid var(--teal-100); border-radius: 20px; padding: 4px 16px;
-    font-size: 13px; color: var(--teal-600); font-weight: 500; font-family: var(--font-mono, monospace);
-  }
-  .gs-btn {
-    display: inline-flex; align-items: center; gap: 7px; margin-top: 1.2rem;
-    padding: 9px 20px; border-radius: var(--border-radius-md,8px);
-    background: var(--green-50); color: var(--green-600); border: 0.5px solid var(--green-400);
-    font-size: 13px; font-weight: 500; cursor: pointer; text-decoration: none;
-  }
-
-  .step-indicator {
-    display: flex; margin-bottom: 1.5rem; overflow: hidden;
-    border-radius: var(--border-radius-md,8px); border: 0.5px solid var(--color-border-tertiary);
-  }
-  .step {
-    flex: 1; padding: 8px 6px; text-align: center; font-size: 12px;
-    color: var(--color-text-tertiary); background: var(--color-background-secondary);
-    border-right: 0.5px solid var(--color-border-tertiary); transition: all 0.2s;
-  }
-  .step:last-child { border-right: none; }
-  .step.active { background: var(--teal-50); color: var(--teal-600); font-weight: 500; }
-  .step.done { background: var(--gray-50); color: var(--gray-600); }
-  .step-num { font-size: 10px; display: block; margin-bottom: 2px; }
-
-  .error-bar {
-    display: none; background: var(--coral-50); border: 0.5px solid var(--coral-100);
-    border-left: 3px solid var(--coral-400); border-radius: 0 6px 6px 0;
-    padding: 10px 14px; font-size: 13px; color: var(--coral-800); margin-top: 1rem;
-  }
-</style>
-
-<div class="wrap">
-  <h2 class="sr-only" style="position:absolute;left:-9999px">設計部派工單申請系統</h2>
-
-  <div id="formArea">
-    <div class="step-indicator">
-      <div class="step active" id="st1"><span class="step-num">01</span>基礎資訊</div>
-      <div class="step" id="st2"><span class="step-num">02</span>需求分類</div>
-      <div class="step" id="st3"><span class="step-num">03</span>規格時程</div>
-      <div class="step" id="st4"><span class="step-num">04</span>文案素材</div>
-    </div>
-
-    <div class="notice-bar">
-      <strong>填單前請確認：</strong>完整文案為必備資訊。文案未定、規格不明或僅提供圖片參考，將列為「待討論」狀態，暫不進入製作時程。
-    </div>
-
-    <div class="section-header">
-      <span class="section-badge badge-gray">SECTION 2</span>
-      <span class="section-title">基礎資訊</span>
-      <span class="divider"></span>
-    </div>
-
-    <div class="grid-2">
-      <div class="field-group">
-        <label class="field-label">需求單位 <span class="req">*</span></label>
-        <select id="dept" onchange="updateStep()">
-          <option value="">請選擇單位</option>
-          <option>泰武咖啡生產合作社</option>
-          <option>卡彿魯岸（瑞民店）</option>
-          <option>生技研發</option>
-          <option>倉儲管理</option>
-          <option>行銷／電商</option>
-          <option>專案部</option>
-        </select>
+  <aside class="sidebar">
+    <h2><i class="ti ti-settings-automation"></i> 作業規範</h2>
+    
+    <div class="rules-box">
+      <div class="rules-section">
+        <strong>❗ 填單前須知</strong>
+        <p>設計部僅負責設計與連繫，不負責最後決策。完整文案為必備資訊，否則將維持在「待討論」狀態。</p>
       </div>
-      <div class="field-group">
-        <label class="field-label">申請人姓名 <span class="req">*</span></label>
-        <input type="text" id="applicant" placeholder="請輸入姓名" oninput="updateStep()">
+
+      <div class="rules-section">
+        <strong>⏳ 輸出時程參考</strong>
+        <table class="timeline-table">
+          <thead><tr><th>品項</th><th>天數(不含假)</th></tr></thead>
+          <tbody>
+            <tr><td>快速輸出 (立牌/海報)</td><td>1 - 2</td></tr>
+            <tr><td>布類製品 (帆布/旗幟)</td><td>2 - 3</td></tr>
+            <tr><td>印刷貼紙</td><td>4 - 7</td></tr>
+            <tr><td>結構包裝 (紙盒)</td><td>14 - 30</td></tr>
+            <tr><td>大宗資材 (紙袋/鋁捲)</td><td>45 - 60</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="rules-section">
+        <strong>💡 專業協作</strong>
+        <p>維持低急件率能確保設計團隊有充裕時間處理視覺細節。</p>
       </div>
     </div>
+  </aside>
 
-    <div class="grid-2">
-      <div class="field-group">
-        <label class="field-label">活動案號</label>
-        <input type="text" id="caseNo" placeholder="例：2025-MKT-001">
-      </div>
-      <div class="field-group">
-        <label class="field-label">活動名稱 <span class="req">*</span></label>
-        <input type="text" id="caseName" placeholder="請輸入活動或案件名稱" oninput="updateStep()">
-      </div>
-    </div>
+  <main class="main-content">
+    <div class="form-container">
+      
+      <div id="formArea" class="card">
+        <header class="form-header">
+          <h1>設計需求申請單 <small style="font-weight: 400; color: var(--text-muted);">V2.0</small></h1>
+          <p>請完成以下資訊填寫，系統將自動派發至設計序列。</p>
+        </header>
 
-    <div class="section-header">
-      <span class="section-badge badge-teal">SECTION 3</span>
-      <span class="section-title">需求分類與時程</span>
-      <span class="divider"></span>
-    </div>
-
-    <div class="field-group">
-      <label class="field-label">專案等級 <span class="req">*</span></label>
-      <div class="level-cards">
-        <label class="level-card" id="lc-s" onclick="selectLevel('S',this)">
-          <input type="radio" name="level" value="S">
-          <div class="level-icon"><i class="ti ti-shield-star" aria-hidden="true"></i></div>
-          <div class="level-name">S 級</div>
-          <div class="level-desc">標案 · 生技包裝<br>需附法規審核紀錄</div>
-        </label>
-        <label class="level-card" id="lc-a" onclick="selectLevel('A',this)">
-          <input type="radio" name="level" value="A">
-          <div class="level-icon"><i class="ti ti-star" aria-hidden="true"></i></div>
-          <div class="level-name">A 級</div>
-          <div class="level-desc">核心專案<br>需附法規審核紀錄</div>
-        </label>
-        <label class="level-card" id="lc-b" onclick="selectLevel('B',this)">
-          <input type="radio" name="level" value="B">
-          <div class="level-icon"><i class="ti ti-clipboard-list" aria-hidden="true"></i></div>
-          <div class="level-name">B 級</div>
-          <div class="level-desc">日常庶務<br>標籤 · 固定格式</div>
-        </label>
-      </div>
-    </div>
-
-    <div class="field-group">
-      <label class="field-label">預定用途 <span class="req">*</span></label>
-      <div class="radio-row" id="purposeRow">
-        <label class="radio-pill" onclick="togglePill(this,'purposeRow')"><input type="radio" name="purpose" value="標案">標案</label>
-        <label class="radio-pill" onclick="togglePill(this,'purposeRow')"><input type="radio" name="purpose" value="產品展會">產品展會</label>
-        <label class="radio-pill" onclick="togglePill(this,'purposeRow')"><input type="radio" name="purpose" value="產品包裝">產品包裝</label>
-        <label class="radio-pill" onclick="togglePill(this,'purposeRow')"><input type="radio" name="purpose" value="電商行銷">電商行銷</label>
-        <label class="radio-pill" onclick="togglePill(this,'purposeRow')"><input type="radio" name="purpose" value="現場活動">現場活動</label>
-        <label class="radio-pill" onclick="togglePill(this,'purposeRow')"><input type="radio" name="purpose" value="餐飲庶務">餐飲庶務</label>
-        <label class="radio-pill" onclick="togglePill(this,'purposeRow')"><input type="radio" name="purpose" value="其他">其他</label>
-      </div>
-    </div>
-
-    <div class="grid-2">
-      <div class="field-group">
-        <label class="field-label">期望交期 <span class="req">*</span></label>
-        <input type="date" id="deadline" onchange="checkDeadline()">
-        <div class="date-warning" id="dateWarn">
-          <i class="ti ti-alert-triangle" aria-hidden="true"></i> 距今工作天不足 7 天，可能影響品質，建議與設計部討論。
+        <span class="section-label">Section 2 / 基礎資訊</span>
+        
+        <div class="grid-2">
+          <div class="field-group">
+            <label class="label-text">需求單位 <span class="req">*</span></label>
+            <select id="dept" required>
+              <option value="">請選擇...</option>
+              <option>泰武咖啡生產合作社</option>
+              <option>卡彿魯岸（瑞民店）</option>
+              <option>生技研發</option>
+              <option>倉儲管理</option>
+              <option>行銷／電商</option>
+              <option>專案部</option>
+            </select>
+          </div>
+          <div class="field-group">
+            <label class="label-text">申請人姓名 <span class="req">*</span></label>
+            <input type="text" id="applicant" placeholder="例如：王小明">
+          </div>
         </div>
-        <p class="field-hint">一般宣傳品請預留 7 個工作天；包裝設計請預留 1.5 個月。</p>
-      </div>
-      <div class="field-group">
-        <label class="field-label">成品規格尺寸／材質</label>
-        <input type="text" id="spec" placeholder="例：A4 · 單面 · 銅版紙 150g">
-      </div>
-    </div>
 
-    <div class="field-group">
-      <label class="field-label">提供檔案格式 <span class="req">*</span></label>
-      <div class="checkbox-group">
-        <label class="checkbox-item"><input type="checkbox" value="PDF"> PDF</label>
-        <label class="checkbox-item"><input type="checkbox" value="JPG"> JPG</label>
-        <label class="checkbox-item"><input type="checkbox" value="PNG（去背）"> PNG（去背）</label>
-        <label class="checkbox-item"><input type="checkbox" value="PPT（僅美化模板）"> PPT（僅美化模板，不含整份撰寫）</label>
-        <label class="checkbox-item"><input type="checkbox" value="其他" id="fmtOther" onchange="toggleOtherFmt()"> 其他</label>
-      </div>
-      <input type="text" id="fmtOtherText" placeholder="請說明其他格式" style="display:none; margin-top:8px">
-    </div>
+        <div class="grid-2">
+          <div class="field-group">
+            <label class="label-text">活動案號</label>
+            <input type="text" id="caseNo" placeholder="2025-MKT-001">
+          </div>
+          <div class="field-group">
+            <label class="label-text">活動名稱 <span class="req">*</span></label>
+            <input type="text" id="caseName" placeholder="請輸入完整名稱">
+          </div>
+        </div>
 
-    <div class="field-group">
-      <label class="field-label">是否需要發印？ <span class="req">*</span></label>
-      <div class="radio-row" id="printRow">
-        <label class="radio-pill" onclick="togglePill(this,'printRow'); showPrintFollow(this)"><input type="radio" name="print" value="是，公司自印">是，公司自印（A4/A3）</label>
-        <label class="radio-pill" onclick="togglePill(this,'printRow'); showPrintFollow(this)"><input type="radio" name="print" value="是，印刷廠">是，印刷廠</label>
-        <label class="radio-pill" onclick="togglePill(this,'printRow'); showPrintFollow(this)"><input type="radio" name="print" value="否">否</label>
-      </div>
-      <div class="print-follow" id="printFollow">
-        <label class="field-label" style="margin-bottom:4px">公司自印是否需要護貝？</label>
-        <div class="radio-row" id="laminateRow">
-          <label class="radio-pill" onclick="togglePill(this,'laminateRow')"><input type="radio" name="laminate" value="是">是</label>
-          <label class="radio-pill" onclick="togglePill(this,'laminateRow')"><input type="radio" name="laminate" value="否">否</label>
+        <span class="section-label">Section 3 / 需求分類與時程</span>
+
+        <div class="field-group">
+          <label class="label-text">專案等級 <span class="req">*</span></label>
+          <div class="level-selector">
+            <div class="level-btn" data-level="S" onclick="setLevel('S')">
+              <span class="level-title">S-Level</span>
+              <span class="level-subtitle">標案 / 包裝</span>
+            </div>
+            <div class="level-btn" data-level="A" onclick="setLevel('A')">
+              <span class="level-title">A-Level</span>
+              <span class="level-subtitle">核心專案</span>
+            </div>
+            <div class="level-btn" data-level="B" onclick="setLevel('B')">
+              <span class="level-title">B-Level</span>
+              <span class="level-subtitle">日常庶務</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="grid-2">
+          <div class="field-group">
+            <label class="label-text">預定用途 <span class="req">*</span></label>
+            <select id="purpose">
+              <option value="">請選擇用途...</option>
+              <option>標案</option>
+              <option>產品展會</option>
+              <option>產品包裝</option>
+              <option>電商行銷</option>
+              <option>現場活動</option>
+              <option>餐飲庶務</option>
+              <option>其他</option>
+            </select>
+          </div>
+          <div class="field-group">
+            <label class="label-text">期望交期 <span class="req">*</span></label>
+            <input type="date" id="deadline">
+            <p class="hint">一般宣傳品 7 天前；包裝設計 1.5 個月前。</p>
+          </div>
+        </div>
+
+        <div class="field-group">
+          <label class="label-text">成品規格尺寸／材質</label>
+          <input type="text" id="spec" placeholder="例如：A4, 雙面印刷, 150g 銅版紙">
+        </div>
+
+        <div class="field-group">
+          <label class="label-text">提供檔案格式 <span class="req">*</span></label>
+          <div style="display: flex; flex-wrap: wrap; gap: 15px; margin-top: 8px;">
+            <label><input type="checkbox" name="format" value="PDF"> PDF</label>
+            <label><input type="checkbox" name="format" value="JPG"> JPG</label>
+            <label><input type="checkbox" name="format" value="PNG"> PNG(去背)</label>
+            <label><input type="checkbox" name="format" value="PPT"> PPT(美化模板)</label>
+          </div>
+        </div>
+
+        <div class="grid-2">
+          <div class="field-group">
+            <label class="label-text">是否需要發印？ <span class="req">*</span></label>
+            <select id="isPrint" onchange="toggleLaminate()">
+              <option value="否">否</option>
+              <option value="是，公司自印">是，公司自印(A4/A3)</option>
+              <option value="是，印刷廠">是，印刷廠</option>
+            </select>
+          </div>
+          <div class="field-group" id="laminateGroup" style="display:none;">
+            <label class="label-text">需要護貝？</label>
+            <select id="laminate">
+              <option value="否">否</option>
+              <option value="是">是</option>
+            </select>
+          </div>
+        </div>
+
+        <span class="section-label">Section 4 / 文案與素材</span>
+
+        <div class="field-group">
+          <label class="label-text">最終確認文案 <span class="req">*</span></label>
+          <textarea id="copy" rows="5" placeholder="請貼上完整文字內容..."></textarea>
+          <p class="hint">必須為最終版本，設計部不負責校對內容錯誤。</p>
+        </div>
+
+        <div class="field-group">
+          <label class="label-text">文字對照表 (修改類適用)</label>
+          <textarea id="diff" rows="3" placeholder="原始內容 / 修改後內容..."></textarea>
+        </div>
+
+        <div class="grid-2">
+          <div class="field-group">
+            <label class="label-text">素材連結 / 檔名紀錄</label>
+            <input type="text" id="assets" placeholder="請提供雲端連結或檔案名稱">
+          </div>
+          <div class="field-group">
+            <label class="label-text">法規審核紀錄 (包裝類適用)</label>
+            <input type="text" id="legal" placeholder="請註記審核人員與日期">
+          </div>
+        </div>
+
+        <div style="margin-top: 2rem; display: flex; justify-content: flex-end; gap: 12px;">
+          <button class="btn-primary" id="submitBtn" onclick="submitForm()">
+            <i class="ti ti-send"></i> 提交需求
+          </button>
         </div>
       </div>
-    </div>
 
-    <div class="section-header">
-      <span class="section-badge badge-blue">SECTION 4</span>
-      <span class="section-title">文案與素材</span>
-      <span class="divider"></span>
-    </div>
-
-    <div class="field-group">
-      <label class="field-label">最終確認文案 <span class="req">*</span></label>
-      <textarea id="copy" placeholder="請貼上完整文字內容，確保可直接且完整複製使用。文案未定者請勿填寫本欄，先行與相關人員確認後再提單。" style="min-height:130px" oninput="updateStep()"></textarea>
-      <p class="field-hint">文案即為最終版本，請確認已通過內部審核。</p>
-    </div>
-
-    <div class="field-group">
-      <label class="field-label">文字對照表（僅修改類文件適用）</label>
-      <textarea id="diffTable" placeholder="原始內容：&#10;修改後內容：&#10;&#10;請逐項填寫，以利確認需求。" style="min-height:80px"></textarea>
-    </div>
-
-    <div class="field-group">
-      <label class="field-label">參考圖與原始素材（檔名紀錄）</label>
-      <div class="file-zone" onclick="document.getElementById('fileInput').click()">
-        <i class="ti ti-cloud-upload" aria-hidden="true"></i>
-        <p>點擊上傳，或拖放檔案至此</p>
-        <p style="font-size:11px; margin-top:3px; color:var(--color-text-tertiary)">支援 JPG、PNG、PDF、AI、PSD</p>
-        <input type="file" id="fileInput" multiple accept=".jpg,.jpeg,.png,.pdf,.ai,.psd" onchange="handleFiles(event)">
+      <div id="successPanel" class="card success-panel">
+        <div class="success-icon"><i class="ti ti-circle-check"></i></div>
+        <h2>需求已成功傳送</h2>
+        <p style="color: var(--text-muted); margin: 1rem 0;">您的案件編號：<strong id="ticketId" style="color: var(--primary);">---</strong></p>
+        <p>設計部將於 1 個工作日內審核並回覆時程。</p>
+        <button class="btn-primary" style="margin-top: 2rem;" onclick="location.reload()">再填一份</button>
       </div>
-      <div class="file-list" id="fileList"></div>
+
     </div>
+  </main>
 
-    <div class="field-group" id="legalField" style="display:none">
-      <label class="field-label">法務／法規審核紀錄 <span class="req">*</span>（包裝類適用）</label>
-      <textarea id="legalNote" placeholder="請填寫法規審核紀錄摘要，或貼上審核文件連結。"></textarea>
-    </div>
+  <script>
+    let selectedLevel = "";
 
-    <div class="error-bar" id="errorBar"></div>
+    function setLevel(level) {
+      selectedLevel = level;
+      document.querySelectorAll('.level-btn').forEach(btn => {
+        btn.classList.remove('active');
+        if(btn.dataset.level === level) btn.classList.add('active');
+      });
+    }
 
-    <div class="submit-row">
-      <button class="btn-submit" id="submitBtn" onclick="submitForm()">
-        <i class="ti ti-send" aria-hidden="true"></i>
-        提交派工單
-      </button>
-      <button class="btn-reset" onclick="resetForm()">清除重填</button>
-      <span class="submit-note">提交後自動存入 Google Sheets</span>
-    </div>
-  </div>
+    function toggleLaminate() {
+      const isPrint = document.getElementById('isPrint').value;
+      document.getElementById('laminateGroup').style.display = (isPrint === '是，公司自印') ? 'block' : 'none';
+    }
 
-  <div class="success-panel" id="successPanel">
-    <div class="success-icon"><i class="ti ti-circle-check"></i></div>
-    <h3>派工單已成功提交</h3>
-    <p>設計部將於 1 個工作日內回覆確認或提出問題。<br>若文案或規格不全，案件將保持「待討論」狀態。</p>
-    <div class="ticket-id" id="ticketId">DES-2025-0001</div>
-    <br>
-    <a class="gs-btn" href="https://docs.google.com/spreadsheets/d/1KzSWw79RkVRyew1YHl1m7mwDirfOp5uohZTDwR4UKd4/edit" target="_blank">
-      <i class="ti ti-table" aria-hidden="true"></i>
-      在 Google Sheets 查看紀錄
-    </a>
-    <br><br>
-    <button class="btn-reset" style="margin-top:4px" onclick="resetForm()">再次提單</button>
-  </div>
-</div>
+    async function submitForm() {
+      const btn = document.getElementById('submitBtn');
+      const dept = document.getElementById('dept').value;
+      const applicant = document.getElementById('applicant').value;
+      const caseName = document.getElementById('caseName').value;
+      const copy = document.getElementById('copy').value;
 
-<script>
-const SHEET_URL = "https://script.google.com/macros/s/AKfycbxCyEEwkiwEUbCBf1NsOWdmhUaB98PDt39F2HI3L0ey7gCg6w8dyXx-ORoqe0u396Be/exec";
-const GS_VIEW_URL = "https://docs.google.com/spreadsheets/d/1KzSWw79RkVRyew1YHl1m7mwDirfOp5uohZTDwR4UKd4/edit";
+      if(!dept || !applicant || !caseName || !copy || !selectedLevel) {
+        alert("請確認必填欄位 (*) 皆已填寫。");
+        return;
+      }
 
-function updateStep() {
-  const ok = document.getElementById('dept').value && document.getElementById('applicant').value && document.getElementById('caseName').value;
-  document.getElementById('st1').className = 'step ' + (ok ? 'done' : 'active');
-  const c = document.getElementById('copy').value.trim();
-  document.getElementById('st4').className = 'step ' + (c.length > 10 ? 'done' : '');
-}
+      btn.disabled = true;
+      btn.innerHTML = '<i class="ti ti-loader-2 animate-spin"></i> 處理中...';
 
-function togglePill(el, groupId) {
-  document.querySelectorAll('#' + groupId + ' .radio-pill').forEach(p => p.classList.remove('selected'));
-  el.classList.add('selected');
-}
+      // 產生簡易案號
+      const tId = "DES-" + new Date().getTime().toString().slice(-6);
 
-function selectLevel(code, card) {
-  ['lc-s','lc-a','lc-b'].forEach(id => document.getElementById(id).className = 'level-card');
-  card.className = 'level-card sel-' + code.toLowerCase();
-  document.getElementById('legalField').style.display = (code === 'S' || code === 'A') ? 'block' : 'none';
-  document.getElementById('st2').className = 'step done';
-}
+      const formats = Array.from(document.querySelectorAll('input[name="format"]:checked')).map(cb => cb.value).join(', ');
 
-function showPrintFollow(el) {
-  document.getElementById('printFollow').style.display = el.querySelector('input').value === '是，公司自印' ? 'block' : 'none';
-}
+      const payload = {
+        ticketId: tId,
+        timestamp: new Date().toLocaleString(),
+        dept, applicant, caseName,
+        level: selectedLevel,
+        deadline: document.getElementById('deadline').value,
+        formats,
+        copy
+      };
 
-function toggleOtherFmt() {
-  document.getElementById('fmtOtherText').style.display = document.getElementById('fmtOther').checked ? 'block' : 'none';
-}
+      // 串接 Google Apps Script
+      const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxCyEEwkiwEUbCBf1NsOWdmhUaB98PDt39F2HI3L0ey7gCg6w8dyXx-ORoqe0u396Be/exec";
 
-function checkDeadline() {
-  const d = new Date(document.getElementById('deadline').value);
-  const diff = Math.round((d - new Date()) / (1000*60*60*24));
-  document.getElementById('dateWarn').style.display = (!isNaN(diff) && diff < 9) ? 'block' : 'none';
-  document.getElementById('st3').className = 'step ' + (document.getElementById('deadline').value ? 'done' : '');
-}
+      try {
+        await fetch(SCRIPT_URL, {
+          method: 'POST',
+          mode: 'no-cors',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload)
+        });
 
-function handleFiles(e) {
-  const list = document.getElementById('fileList');
-  Array.from(e.target.files).forEach(f => {
-    const chip = document.createElement('div');
-    chip.className = 'file-chip';
-    chip.innerHTML = '<i class="ti ti-file" aria-hidden="true"></i>' + f.name + '<button onclick="this.parentNode.remove()" aria-label="移除">×</button>';
-    list.appendChild(chip);
-  });
-}
-
-function getFormats() {
-  const checked = Array.from(document.querySelectorAll('.checkbox-group input:checked')).map(i => i.value);
-  const other = document.getElementById('fmtOtherText').value;
-  return checked.filter(v => v !== '其他').concat(document.getElementById('fmtOther').checked && other ? [other] : []);
-}
-
-function getFileNames() {
-  return Array.from(document.querySelectorAll('#fileList .file-chip')).map(c => c.textContent.trim().replace('×','')).join('、');
-}
-
-function genTicketId() {
-  const now = new Date();
-  return 'DES-' + now.getFullYear() + '-' + String(Math.floor(Math.random()*9000)+1000);
-}
-
-function showError(msg) {
-  const bar = document.getElementById('errorBar');
-  bar.textContent = msg;
-  bar.style.display = 'block';
-  bar.scrollIntoView({behavior:'smooth', block:'nearest'});
-}
-
-async function submitForm() {
-  document.getElementById('errorBar').style.display = 'none';
-  const dept = document.getElementById('dept').value;
-  const applicant = document.getElementById('applicant').value.trim();
-  const caseName = document.getElementById('caseName').value.trim();
-  const deadline = document.getElementById('deadline').value;
-  const copy = document.getElementById('copy').value.trim();
-  const levelEl = document.querySelector('.level-card[class*="sel-"]');
-  const purposeEl = document.querySelector('#purposeRow input:checked');
-  const formats = getFormats();
-
-  if (!dept || !applicant || !caseName) { showError('請完整填寫需求單位、申請人姓名及活動名稱。'); return; }
-  if (!levelEl) { showError('請選擇專案等級（S / A / B）。'); return; }
-  if (!purposeEl) { showError('請選擇預定用途。'); return; }
-  if (!deadline) { showError('請填寫期望交期。'); return; }
-  if (formats.length === 0) { showError('請至少選擇一種檔案格式。'); return; }
-  if (!document.querySelector('#printRow input:checked')) { showError('請選擇是否需要發印。'); return; }
-  if (copy.length < 5) { showError('請填寫最終確認文案，此為提單必備資訊。'); return; }
-
-  const ticketId = genTicketId();
-  const printEl = document.querySelector('#printRow input:checked');
-  const laminateEl = document.querySelector('#laminateRow input:checked');
-
-  const payload = {
-    ticketId,
-    timestamp: new Date().toLocaleString('zh-TW', {timeZone:'Asia/Taipei'}),
-    dept, applicant,
-    caseNo: document.getElementById('caseNo').value,
-    caseName,
-    level: levelEl.querySelector('input').value,
-    purpose: purposeEl.value,
-    deadline, spec: document.getElementById('spec').value,
-    formats: formats.join('、'),
-    print: printEl ? printEl.value : '',
-    laminate: laminateEl ? laminateEl.value : '',
-    copy,
-    diff: document.getElementById('diffTable').value,
-    files: getFileNames(),
-    legal: document.getElementById('legalNote') ? document.getElementById('legalNote').value : '',
-    status: '待審核'
-  };
-
-  const btn = document.getElementById('submitBtn');
-  btn.innerHTML = '<i class="ti ti-loader" aria-hidden="true"></i> 提交中...';
-  btn.disabled = true;
-
-  try {
-    await fetch(SHEET_URL, {
-      method: 'POST',
-      mode: 'no-cors',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(payload)
-    });
-    document.getElementById('ticketId').textContent = ticketId;
-    document.getElementById('formArea').style.display = 'none';
-    document.getElementById('successPanel').style.display = 'block';
-  } catch(err) {
-    showError('提交失敗，請檢查網路連線後再試。錯誤：' + err.message);
-    btn.innerHTML = '<i class="ti ti-send" aria-hidden="true"></i> 提交派工單';
-    btn.disabled = false;
-  }
-}
-
-function resetForm() {
-  document.getElementById('formArea').style.display = 'block';
-  document.getElementById('successPanel').style.display = 'none';
-  document.getElementById('errorBar').style.display = 'none';
-  document.querySelectorAll('input[type=text], input[type=date], textarea, select').forEach(el => el.value = '');
-  document.querySelectorAll('.radio-pill').forEach(p => p.classList.remove('selected'));
-  ['lc-s','lc-a','lc-b'].forEach(id => document.getElementById(id).className = 'level-card');
-  document.querySelectorAll('.checkbox-group input').forEach(c => c.checked = false);
-  document.getElementById('fileList').innerHTML = '';
-  document.getElementById('dateWarn').style.display = 'none';
-  document.getElementById('printFollow').style.display = 'none';
-  document.getElementById('legalField').style.display = 'none';
-  document.getElementById('fmtOtherText').style.display = 'none';
-  ['st1','st2','st3','st4'].forEach((id,i) => {
-    document.getElementById(id).className = 'step' + (i===0 ? ' active' : '');
-  });
-  const btn = document.getElementById('submitBtn');
-  btn.innerHTML = '<i class="ti ti-send" aria-hidden="true"></i> 提交派工單';
-  btn.disabled = false;
-}
-</script>
+        document.getElementById('ticketId').innerText = tId;
+        document.getElementById('formArea').style.display = 'none';
+        document.getElementById('successPanel').style.display = 'block';
+      } catch (e) {
+        alert("提交失敗，請檢查網路連線。");
+        btn.disabled = false;
+        btn.innerHTML = '<i class="ti ti-send"></i> 提交需求';
+      }
+    }
+  </script>
+</body>
+</html>
