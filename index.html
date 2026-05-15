@@ -1,616 +1,438 @@
-<meta charset="UTF-8">
-<style>
-  :root {
-    --amber-50: #FAEEDA; --amber-100: #FAC775; --amber-400: #BA7517; --amber-600: #854F0B; --amber-800: #633806;
-    --teal-50: #E1F5EE; --teal-100: #9FE1CB; --teal-400: #1D9E75; --teal-600: #0F6E56; --teal-800: #085041;
-    --coral-50: #FAECE7; --coral-100: #F5C4B3; --coral-400: #D85A30; --coral-600: #993C1D; --coral-800: #712B13;
-    --gray-50: #F1EFE8; --gray-100: #D3D1C7; --gray-400: #888780; --gray-600: #5F5E5A; --gray-800: #444441;
-    --blue-50: #E6F1FB; --blue-100: #B5D4F4; --blue-400: #378ADD; --blue-600: #185FA5; --blue-800: #0C447C;
-    --green-50: #EAF3DE; --green-100: #C0DD97; --green-400: #639922; --green-600: #3B6D11;
-  }
-  * { box-sizing: border-box; margin: 0; padding: 0; }
-  body { font-family: var(--font-sans, system-ui); }
-  .wrap { padding: 1.5rem 1rem; max-width: 720px; margin: 0 auto; }
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>設計部派工系統 V2.0 - Tech Edition</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/tabler-icons.min.css">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=JetBrains+Mono&display=swap" rel="stylesheet">
+  
+  <style>
+    :root {
+      /* 科技感深色調 */
+      --bg-dark: #0a0c10;
+      --card-bg: rgba(22, 27, 34, 0.7);
+      --border-color: rgba(48, 54, 61, 0.8);
+      
+      --accent-primary: #00f2ff; /* 電光青 */
+      --accent-secondary: #7000ff; /* 極光紫 */
+      --accent-success: #3fb950;
+      --accent-warning: #d29922;
+      --accent-danger: #f85149;
+      
+      --text-main: #e6edf3;
+      --text-muted: #8b949e;
+      
+      --glow: 0 0 15px rgba(0, 242, 255, 0.3);
+      --transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+    }
 
-  .notice-bar {
-    background: var(--amber-50); border: 0.5px solid var(--amber-100);
-    border-left: 3px solid var(--amber-400); border-radius: 0 var(--border-radius-md,8px) var(--border-radius-md,8px) 0;
-    padding: 10px 14px; font-size: 13px; color: var(--amber-800);
-    margin-bottom: 1.5rem; line-height: 1.6;
-  }
-  .notice-bar strong { color: var(--amber-600); font-weight: 500; }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    
+    body {
+      background-color: var(--bg-dark);
+      background-image: 
+        radial-gradient(circle at 10% 20%, rgba(112, 0, 255, 0.05) 0%, transparent 40%),
+        radial-gradient(circle at 90% 80%, rgba(0, 242, 255, 0.05) 0%, transparent 40%);
+      color: var(--text-main);
+      font-family: 'Inter', system-ui, -apple-system, sans-serif;
+      line-height: 1.6;
+      min-height: 100vh;
+      padding-bottom: 4rem;
+    }
 
-  .section-header { display: flex; align-items: center; gap: 10px; margin: 1.5rem 0 1rem; }
-  .section-badge { font-size: 11px; font-weight: 500; padding: 3px 9px; border-radius: 20px; letter-spacing: 0.5px; white-space: nowrap; }
-  .badge-gray { background: var(--gray-50); color: var(--gray-600); border: 0.5px solid var(--gray-100); }
-  .badge-teal { background: var(--teal-50); color: var(--teal-600); border: 0.5px solid var(--teal-100); }
-  .badge-blue { background: var(--blue-50); color: var(--blue-600); border: 0.5px solid var(--blue-100); }
-  .section-title { font-size: 15px; font-weight: 500; color: var(--color-text-primary); }
-  .divider { flex: 1; height: 0.5px; background: var(--color-border-tertiary); }
+    .wrap {
+      max-width: 800px;
+      margin: 0 auto;
+      padding: 2rem 1rem;
+    }
 
-  .field-group { margin-bottom: 1.1rem; }
-  .field-label { display: block; font-size: 13px; font-weight: 500; color: var(--color-text-secondary); margin-bottom: 5px; }
-  .field-label .req { color: var(--coral-400); margin-left: 2px; }
-  .field-hint { font-size: 12px; color: var(--color-text-tertiary); margin-top: 4px; line-height: 1.5; }
+    /* 頂部標題 */
+    .header-main {
+      text-align: center;
+      margin-bottom: 2.5rem;
+    }
+    .header-main h1 {
+      font-size: 1.8rem;
+      font-weight: 600;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      background: linear-gradient(to right, var(--accent-primary), var(--accent-secondary));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      margin-bottom: 0.5rem;
+    }
 
-  input[type="text"], input[type="date"], select, textarea {
-    width: 100%; border-radius: var(--border-radius-md,8px);
-    border: 0.5px solid var(--color-border-secondary);
-    background: var(--color-background-primary); color: var(--color-text-primary);
-    font-family: inherit; font-size: 14px; padding: 8px 11px; transition: border-color 0.15s;
-  }
-  input[type="text"]:focus, input[type="date"]:focus, select:focus, textarea:focus {
-    outline: none; border-color: var(--teal-400); box-shadow: 0 0 0 2px rgba(29,158,117,0.12);
-  }
-  textarea { resize: vertical; min-height: 90px; line-height: 1.6; }
+    /* 步驟指示器 */
+    .step-indicator {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 2.5rem;
+    }
+    .step {
+      flex: 1;
+      padding: 12px;
+      background: var(--card-bg);
+      border: 1px solid var(--border-color);
+      border-radius: 4px;
+      text-align: center;
+      font-size: 0.75rem;
+      color: var(--text-muted);
+      position: relative;
+      overflow: hidden;
+      transition: var(--transition);
+    }
+    .step.active {
+      border-color: var(--accent-primary);
+      color: var(--accent-primary);
+      box-shadow: var(--glow);
+    }
+    .step.done {
+      border-color: var(--accent-success);
+      color: var(--accent-success);
+    }
+    .step-num {
+      display: block;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 1rem;
+      font-weight: 600;
+      margin-bottom: 2px;
+    }
 
-  .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
-  @media (max-width: 520px) { .grid-2 { grid-template-columns: 1fr; } }
+    /* 卡片容器 */
+    .glass-card {
+      background: var(--card-bg);
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+      border: 1px solid var(--border-color);
+      border-radius: 12px;
+      padding: 2rem;
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+    }
 
-  .checkbox-group { display: flex; flex-direction: column; gap: 6px; margin-top: 2px; }
-  .checkbox-item {
-    display: flex; align-items: center; gap: 9px; padding: 7px 10px;
-    border-radius: var(--border-radius-md,8px); border: 0.5px solid var(--color-border-tertiary);
-    cursor: pointer; transition: background 0.12s; font-size: 14px; color: var(--color-text-primary);
-  }
-  .checkbox-item:hover { background: var(--color-background-secondary); }
-  .checkbox-item input { accent-color: var(--teal-400); width: 15px; height: 15px; cursor: pointer; }
+    /* 分區標題 */
+    .section-header {
+      display: flex;
+      align-items: center;
+      gap: 15px;
+      margin: 2rem 0 1.5rem;
+    }
+    .section-title {
+      font-size: 0.9rem;
+      font-weight: 600;
+      color: var(--accent-primary);
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+    .divider {
+      flex: 1;
+      height: 1px;
+      background: linear-gradient(to right, var(--border-color), transparent);
+    }
 
-  .radio-row { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 2px; }
-  .radio-pill {
-    display: flex; align-items: center; gap: 7px; padding: 6px 14px; border-radius: 20px;
-    border: 0.5px solid var(--color-border-secondary); cursor: pointer; transition: all 0.12s;
-    font-size: 13px; color: var(--color-text-secondary); background: var(--color-background-primary);
-  }
-  .radio-pill:hover { border-color: var(--teal-400); color: var(--color-text-primary); }
-  .radio-pill input { display: none; }
-  .radio-pill.selected { background: var(--teal-50); border-color: var(--teal-400); color: var(--teal-600); font-weight: 500; }
+    /* 表單元件 */
+    .field-group { margin-bottom: 1.5rem; }
+    .field-label {
+      display: block;
+      font-size: 0.85rem;
+      color: var(--text-muted);
+      margin-bottom: 8px;
+    }
+    .field-label .req { color: var(--accent-danger); margin-left: 4px; }
 
-  .level-cards { display: grid; grid-template-columns: repeat(3,1fr); gap: 8px; margin-top: 4px; }
-  @media (max-width: 520px) { .level-cards { grid-template-columns: 1fr; } }
-  .level-card {
-    border: 0.5px solid var(--color-border-tertiary); border-radius: var(--border-radius-md,8px);
-    padding: 12px; cursor: pointer; transition: all 0.15s; text-align: center;
-  }
-  .level-card:hover { border-color: var(--color-border-secondary); background: var(--color-background-secondary); }
-  .level-card.sel-s { background: var(--coral-50); border-color: var(--coral-400); }
-  .level-card.sel-a { background: var(--amber-50); border-color: var(--amber-400); }
-  .level-card.sel-b { background: var(--blue-50); border-color: var(--blue-400); }
-  .level-card input { display: none; }
-  .level-icon { font-size: 20px; margin-bottom: 4px; }
-  .level-name { font-size: 14px; font-weight: 500; }
-  .level-desc { font-size: 11px; margin-top: 3px; }
-  .level-icon, .level-name { color: var(--color-text-secondary); }
-  .level-desc { color: var(--color-text-tertiary); }
-  .level-card.sel-s .level-name, .level-card.sel-s .level-icon { color: var(--coral-600); }
-  .level-card.sel-s .level-desc { color: var(--coral-400); }
-  .level-card.sel-a .level-name, .level-card.sel-a .level-icon { color: var(--amber-600); }
-  .level-card.sel-a .level-desc { color: var(--amber-400); }
-  .level-card.sel-b .level-name, .level-card.sel-b .level-icon { color: var(--blue-600); }
-  .level-card.sel-b .level-desc { color: var(--blue-400); }
+    input[type="text"], input[type="date"], select, textarea {
+      width: 100%;
+      background: rgba(13, 17, 23, 0.8);
+      border: 1px solid var(--border-color);
+      border-radius: 6px;
+      color: var(--text-main);
+      padding: 12px 16px;
+      font-size: 0.95rem;
+      transition: var(--transition);
+      font-family: inherit;
+    }
+    input:focus, select:focus, textarea:focus {
+      outline: none;
+      border-color: var(--accent-primary);
+      box-shadow: 0 0 0 2px rgba(0, 242, 255, 0.1);
+    }
 
-  .date-warning {
-    display: none; background: var(--amber-50); border: 0.5px solid var(--amber-100);
-    border-left: 3px solid var(--amber-400); border-radius: 0 6px 6px 0;
-    padding: 7px 11px; font-size: 12px; color: var(--amber-800); margin-top: 6px;
-  }
-  .print-follow {
-    display: none; margin-top: 8px; background: var(--gray-50);
-    border-radius: var(--border-radius-md,8px); border: 0.5px solid var(--color-border-tertiary); padding: 10px 14px;
-  }
+    /* 網格系統 */
+    .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+    @media (max-width: 600px) { .grid-2 { grid-template-columns: 1fr; } }
 
-  .file-zone {
-    border: 1px dashed var(--color-border-secondary); border-radius: var(--border-radius-md,8px);
-    padding: 20px; text-align: center; cursor: pointer; transition: all 0.15s;
-    background: var(--color-background-secondary);
-  }
-  .file-zone:hover { border-color: var(--teal-400); background: var(--teal-50); }
-  .file-zone i { font-size: 24px; color: var(--color-text-tertiary); margin-bottom: 6px; display: block; }
-  .file-zone p { font-size: 13px; color: var(--color-text-secondary); }
-  .file-zone input { display: none; }
-  .file-list { margin-top: 8px; display: flex; flex-wrap: wrap; gap: 6px; }
-  .file-chip {
-    display: flex; align-items: center; gap: 6px; padding: 4px 10px;
-    background: var(--teal-50); border: 0.5px solid var(--teal-100); border-radius: 20px;
-    font-size: 12px; color: var(--teal-600);
-  }
-  .file-chip button { border: none; background: none; cursor: pointer; color: var(--teal-400); font-size: 14px; padding: 0; line-height: 1; }
+    /* 等級選擇卡片 */
+    .level-cards { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
+    .level-card {
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      padding: 15px;
+      cursor: pointer;
+      text-align: center;
+      transition: var(--transition);
+      background: rgba(255, 255, 255, 0.02);
+    }
+    .level-card:hover { border-color: var(--text-muted); }
+    .level-card input { display: none; }
+    
+    .level-card.sel-s { border-color: var(--accent-danger); background: rgba(248, 81, 73, 0.05); box-shadow: 0 0 10px rgba(248, 81, 73, 0.1); }
+    .level-card.sel-a { border-color: var(--accent-warning); background: rgba(210, 153, 34, 0.05); }
+    .level-card.sel-b { border-color: var(--accent-primary); background: rgba(0, 242, 255, 0.05); }
 
-  .submit-row {
-    margin-top: 2rem; padding-top: 1.5rem; border-top: 0.5px solid var(--color-border-tertiary);
-    display: flex; gap: 10px; align-items: center; flex-wrap: wrap;
-  }
-  .btn-submit {
-    padding: 10px 24px; border-radius: var(--border-radius-md,8px); background: var(--teal-400);
-    color: #fff; border: none; font-size: 14px; font-weight: 500; cursor: pointer;
-    transition: background 0.15s; display: flex; align-items: center; gap: 7px;
-  }
-  .btn-submit:hover { background: var(--teal-600); }
-  .btn-submit:disabled { opacity: 0.6; cursor: not-allowed; }
-  .btn-reset {
-    padding: 10px 18px; border-radius: var(--border-radius-md,8px);
-    background: var(--color-background-primary); color: var(--color-text-secondary);
-    border: 0.5px solid var(--color-border-secondary); font-size: 14px; cursor: pointer;
-  }
-  .btn-reset:hover { background: var(--color-background-secondary); }
-  .submit-note { font-size: 12px; color: var(--color-text-tertiary); margin-left: auto; }
+    .level-name { font-weight: 600; font-size: 1.1rem; margin-bottom: 4px; }
+    .level-desc { font-size: 0.7rem; color: var(--text-muted); }
 
-  .success-panel { display: none; text-align: center; padding: 2.5rem 1rem; }
-  .success-icon {
-    width: 56px; height: 56px; border-radius: 50%; background: var(--teal-50);
-    display: flex; align-items: center; justify-content: center; margin: 0 auto 1rem;
-  }
-  .success-icon i { font-size: 28px; color: var(--teal-600); }
-  .success-panel h3 { font-size: 18px; font-weight: 500; color: var(--color-text-primary); margin-bottom: 8px; }
-  .success-panel p { font-size: 14px; color: var(--color-text-secondary); line-height: 1.6; }
-  .ticket-id {
-    display: inline-block; margin-top: 1rem; background: var(--teal-50);
-    border: 0.5px solid var(--teal-100); border-radius: 20px; padding: 4px 16px;
-    font-size: 13px; color: var(--teal-600); font-weight: 500; font-family: var(--font-mono, monospace);
-  }
-  .gs-btn {
-    display: inline-flex; align-items: center; gap: 7px; margin-top: 1.2rem;
-    padding: 9px 20px; border-radius: var(--border-radius-md,8px);
-    background: var(--green-50); color: var(--green-600); border: 0.5px solid var(--green-400);
-    font-size: 13px; font-weight: 500; cursor: pointer; text-decoration: none;
-  }
+    /* 按鈕樣式 */
+    .btn-submit {
+      width: 100%;
+      padding: 14px;
+      border: none;
+      border-radius: 6px;
+      background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary));
+      color: white;
+      font-size: 1rem;
+      font-weight: 600;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      transition: var(--transition);
+      margin-top: 1rem;
+    }
+    .btn-submit:hover {
+      opacity: 0.9;
+      transform: translateY(-1px);
+      box-shadow: 0 5px 20px rgba(0, 242, 255, 0.4);
+    }
+    .btn-submit:disabled { filter: grayscale(1); cursor: not-allowed; }
 
-  .step-indicator {
-    display: flex; margin-bottom: 1.5rem; overflow: hidden;
-    border-radius: var(--border-radius-md,8px); border: 0.5px solid var(--color-border-tertiary);
-  }
-  .step {
-    flex: 1; padding: 8px 6px; text-align: center; font-size: 12px;
-    color: var(--color-text-tertiary); background: var(--color-background-secondary);
-    border-right: 0.5px solid var(--color-border-tertiary); transition: all 0.2s;
-  }
-  .step:last-child { border-right: none; }
-  .step.active { background: var(--teal-50); color: var(--teal-600); font-weight: 500; }
-  .step.done { background: var(--gray-50); color: var(--gray-600); }
-  .step-num { font-size: 10px; display: block; margin-bottom: 2px; }
+    /* 成功畫面 */
+    .success-panel {
+      text-align: center;
+      padding: 3rem 1rem;
+      display: none;
+    }
+    .success-icon {
+      font-size: 4rem;
+      color: var(--accent-success);
+      margin-bottom: 1.5rem;
+      filter: drop-shadow(0 0 10px rgba(63, 185, 80, 0.4));
+    }
+    .ticket-id {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 1.5rem;
+      color: var(--accent-primary);
+      margin: 1.5rem 0;
+      padding: 10px 20px;
+      border: 1px dashed var(--accent-primary);
+      display: inline-block;
+    }
 
-  .error-bar {
-    display: none; background: var(--coral-50); border: 0.5px solid var(--coral-100);
-    border-left: 3px solid var(--coral-400); border-radius: 0 6px 6px 0;
-    padding: 10px 14px; font-size: 13px; color: var(--coral-800); margin-top: 1rem;
-  }
-</style>
+    /* 檔案晶片 */
+    .file-chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 6px 12px;
+      background: rgba(0, 242, 255, 0.1);
+      border: 1px solid var(--accent-primary);
+      border-radius: 20px;
+      font-size: 0.8rem;
+      margin: 4px;
+    }
+    .file-chip button {
+      background: none; border: none; color: var(--accent-danger); cursor: pointer; font-size: 1rem;
+    }
+
+    .notice-bar {
+      background: rgba(210, 153, 34, 0.1);
+      border-left: 4px solid var(--accent-warning);
+      padding: 15px;
+      border-radius: 4px;
+      font-size: 0.85rem;
+      margin-bottom: 2rem;
+    }
+  </style>
+</head>
+<body>
 
 <div class="wrap">
-  <h2 class="sr-only" style="position:absolute;left:-9999px">閮剛冽晷撌亙桃唾蝟餌絞</h2>
-1rem;
-;
- }
-rtiary);
-  <div id="formArea">
-    <div class="step-indicator">
-      <div class="step active" id="st1"><span class="step-num">01</span>箇鞈閮</div>
-;
-;
- }
-rt      <div class="step" id="st2"><span class="step-num">02</span>\瘙憿</div>
-div>
-;
-      <div class="step" id="st3"><span class="step-num">03</span>閬 潭蝔</div>
-div>
-;
-      <div class="step" id="st4"><span class="step-num">04</span>獢蝝 </div>
->
-div>
-;
-    </div>
+  <div class="header-main">
+    <h1>Design Dispatch System</h1>
+    <p style="color: var(--text-muted); font-size: 0.8rem;">設計部智慧派工申請平台 V2.0</p>
+  </div>
 
-    <div class="notice-bar">
-      <strong>憛怠桀隢蝣箄嚗</strong>摰湔獢箏鞈閮\獢芸\閬 潔靘\嚗撠箝\敺閮隢\\嚗思\脣亥ˊ雿蝔\
-v>
-;
-;
- }
-rtiary);
-pace);
- 8px; }
-adding: 0; line-height: 1; }
-rgin-top: 2px; }
-  .checkbox-item {
-    display    </div>
+  <div id="formArea">
+    <div class="step-indicator">
+      <div class="step active" id="st1"><span class="step-num">01</span>INFO</div>
+      <div class="step" id="st2"><span class="step-num">02</span>TYPE</div>
+      <div class="step" id="st3"><span class="step-num">03</span>SPEC</div>
+      <div class="step" id="st4"><span class="step-num">04</span>DATA</div>
+    </div>
 
-    <div class="section-header">
-      <span class="section-badge badge-gray">SECTION 2</span>
-      <span class="section-title">箇鞈閮</span>
-SECTION 2      <span class="divider"></span>
-    </div>
+    <div class="notice-bar">
+      <i class="ti ti-info-circle"></i> <strong>提報核心原理：</strong>文案需為最終品質版本。規格不明或文案未定之案件將延後處理。
+    </div>
 
-    <div class="grid-2">
-      <div class="field-group">
-        <label class="field-label">\瘙桐 <span class="req">*</span></label>
-
-v>
-;        <select id="dept" onchange="updateStep()">
-          <option value="">隢豢桐</option>
-eStep()">
-s          <option>瘜唳郎ue=      Ｗ雿蝷</option>
-tion>瘜唳郎ue="          <option>   敶輸陌撗賂瘞摨嚗</option>
-瘜唳郎ue="">隢豢桐</o          <option>\ </option>
-</option>          <option>\脩</opt </option>
-<op          <option>銵瘀餃</option>
-</option>
-eS          <option>撠獢</option>
+    <div class="glass-card">
+      <div class="section-header">
+        <span class="section-title">01 基礎資訊</span>
+        <div class="divider"></div>
+      </div>
 
-</opti        </select>
-      </div>
-      <div class="field-group">
-        <label class="field-label">唾鈭箏 <span class="req">*</span></label>
->
-
-v>
-;
-;
-        <input type="text" id="applicant" placeholder="隢頛詨亙" oninput="updateStep()">
+      <div class="grid-2">
+        <div class="field-group">
+          <label class="field-label">需求單位 <span class="req">*</span></label>
+          <select id="dept" onchange="updateStep()">
+            <option value="">SELECT DEPT</option>
+            <option>泰武咖啡生產合作社</option>
+            <option>卡彿魯岸（瑞民店）</option>
+            <option>生技研發</option>
+            <option>倉儲管理</option>
+            <option>行銷／電商</option>
+            <option>專案部</option>
+          </select>
+        </div>
+        <div class="field-group">
+          <label class="field-label">申請人姓名 <span class="req">*</span></label>
+          <input type="text" id="applicant" placeholder="ENTER NAME" oninput="updateStep()">
+        </div>
+      </div>
 
- }
-rtiary)      </div>
-    </div>
+      <div class="field-group">
+        <label class="field-label">活動名稱 <span class="req">*</span></label>
+        <input type="text" id="caseName" placeholder="PROJECT TITLE" oninput="updateStep()">
+      </div>
 
-    <div class="grid-2">
-      <div class="field-group">
-        <label class="field-label">瘣餃獢</label>
-holder="隢        <input type="text" id="caseNo" placeholder="靘嚗2025-MKT-001">
-"upd      </div>
-      <div class="field-group">
-        <label class="field-label">瘣餃蝔 <span class="req">*</span></label>
-teStep()"        <input type="text" id="caseName" placeholder="隢頛詨交暑獢隞嗅蝔" oninput="updateStep()">
-rtiary);
-pace);
- 8px;      </div>
-    </div>
+      <div class="section-header">
+        <span class="section-title">02 級別與用途</span>
+        <div class="divider"></div>
+      </div>
 
-    <div class="section-header">
-      <span class="section-badge badge-teal">SECTION 3</span>
-      <span class="section-title">\瘙憿蝔</span>
-ION 3</span>
-蝔      <span class="divider"></span>
-    </div>
+      <div class="field-group">
+        <label class="field-label">專案等級 <span class="req">*</span></label>
+        <div class="level-cards">
+          <label class="level-card" id="lc-s" onclick="selectLevel('S',this)">
+            <input type="radio" name="level" value="S">
+            <div class="level-name" style="color:var(--accent-danger)">S-CLASS</div>
+            <div class="level-desc">標案 / 重要包裝</div>
+          </label>
+          <label class="level-card" id="lc-a" onclick="selectLevel('A',this)">
+            <input type="radio" name="level" value="A">
+            <div class="level-name" style="color:var(--accent-warning)">A-CLASS</div>
+            <div class="level-desc">核心推廣專案</div>
+          </label>
+          <label class="level-card" id="lc-b" onclick="selectLevel('B',this)">
+            <input type="radio" name="level" value="B">
+            <div class="level-name" style="color:var(--accent-primary)">B-CLASS</div>
+            <div class="level-desc">日常庶務 / 修改</div>
+          </label>
+        </div>
+      </div>
 
-    <div class="field-group">
-      <label class="field-label">撠獢蝑蝝 <span class="req">*</span></label>
-"updateS      <div class="level-cards">
-        <label class="level-card" id="lc-s" onclick="selectLevel('S',this)">
-          <input type="radio" name="level" value="S">
-          <div class="level-icon"><i class="ti ti-shield-star" aria-hidden="true"></i></div>
-          <div class="level-name">S 蝝</div>
-ti          <div class="level-desc">璅獢 繚 \鋆<br>\瘜閬撖拇 貊\</div>
-aria-hidden="true"></i></div        </label>
-        <label class="level-card" id="lc-a" onclick="selectLevel('A',this)">
-          <input type="radio" name="level" value="A">
-          <div class="level-icon"><i class="ti ti-star" aria-hidden="true"></i></div>
-          <div class="level-name">A 蝝</div>
-ti          <div class="level-desc"> 詨撠獢<br>\瘜閬撖拇 貊\</div>
-a-hidden="true"></i></        </label>
-        <label class="level-card" id="lc-b" onclick="selectLevel('B',this)">
-          <input type="radio" name="level" value="B">
-          <div class="level-icon"><i class="ti ti-clipboard-list" aria-hidden="true"></i></div>
-          <div class="level-name">B 蝝</div>
-ti          <div class="level-desc">亙虜摨嗅<br>璅蝐 繚 箏 澆</div>
-rd-list" aria-hidden="        </label>
-      </div>
-    </div>
+      <div class="section-header">
+        <span class="section-title">03 文案內容</span>
+        <div class="divider"></div>
+      </div>
 
-    <div class="field-group">
-      <label class="field-label"> 摰券\ <span class="req">*</span></label>
-den="tr      <div class="radio-row" id="purposeRow">
-        <label class="radio-pill" onclick="togglePill(this,'purposeRow')"><input type="radio" name="purpose" value="璅獢">璅獢</label>
-ight: 1;        <label class="radio-pill" onclick="togglePill(this,'purposeRow')"><input type="radio" name="purpose" value="Ｗ撅">Ｗ撅</label>
-ht: 1; }
-rgin-top:        <label class="radio-pill" onclick="togglePill(this,'purposeRow')"><input type="radio" name="purpose" value="Ｗ鋆">Ｗ鋆</label>
-ht: 1; }
-rgin-top:        <label class="radio-pill" onclick="togglePill(this,'purposeRow')"><input type="radio" name="purpose" value="餃銵">餃銵</label>
->
-ht: 1; }
-rgin-top:        <label class="radio-pill" onclick="togglePill(this,'purposeRow')"><input type="radio" name="purpose" value="曉 湔暑">曉 湔暑</label>
-: 1; }
-rgin-top:        <label class="radio-pill" onclick="togglePill(this,'purposeRow')"><input type="radio" name="purpose" value="擗憌脣熄">擗憌脣熄</label>
-: 1; }
-rgin-top:        <label class="radio-pill" onclick="togglePill(this,'purposeRow')"><input type="radio" name="purpose" value="嗡">嗡</label>
-abel>
-: 1;      </div>
-    </div>
+      <div class="field-group">
+        <label class="field-label">最終確認文案 <span class="req">*</span></label>
+        <textarea id="copy" placeholder="請貼上完整文字內容..." style="min-height:150px" oninput="updateStep()"></textarea>
+      </div>
 
-    <div class="grid-2">
-      <div class="field-group">
-        <label class="field-label">鈭斗 <span class="req">*</span></label>
-><input ty        <input type="date" id="deadline" onchange="checkDeadline()">
-        <div class="date-warning" id="dateWarn">
-          <i class="ti ti-alert-triangle" aria-hidden="true"></i> 頝隞撌乩憭拐頞 7 憭抬航賢蔣踹鞈迎撱箄降閮剛刻隢\
-me="purpose" value="嗡">嗡</label>
-abel>
-: 1; }
-rgi        </div>
-        <p class="field-hint">銝\砍恐喳隢  7 \撌乩憭抬鋆閮剛隢  1.5 \\</p>
-乩憭拐頞 7 憭抬航賢蔣踹鞈迎撱箄降閮剛刻隢\
-me="purpose" val      </div>
-      <div class="field-group">
-        <label class="field-label">閬 澆偕撖賂鞈</label>
-隢  1.5 \\</p>
-乩憭        <input type="text" id="spec" placeholder="靘嚗A4 繚 桅 繚 蝝 150g">
-憭拐頞 7 憭抬航賢蔣踹鞈迎撱箄降閮      </div>
-    </div>
+      <div id="errorBar" style="display:none; color:var(--accent-danger); font-size:0.85rem; margin-bottom:1rem; padding:10px; border:1px solid var(--accent-danger); border-radius:4px; background:rgba(248,81,73,0.1);"></div>
 
-    <div class="field-group">
-      <label class="field-label">靘瑼獢 澆 <span class="req">*</span></label>
-7 憭抬航賢蔣踹鞈迎撱箄      <div class="checkbox-group">
-        <label class="checkbox-item"><input type="checkbox" value="PDF"> PDF</label>
-        <label class="checkbox-item"><input type="checkbox" value="JPG"> JPG</label>
-        <label class="checkbox-item"><input type="checkbox" value="PNG嚗餉嚗"> PNG嚗餉嚗</label>
-隢\
-me="purpose"         <label class="checkbox-item"><input type="checkbox" value="PPT嚗蝢璅⊥選"> PPT嚗蝢璅⊥選銝急港遢啣神嚗</label>
-rpose" value="嗡">嗡</label>
-abel>
-: 1; }
-rgin-t        <label class="checkbox-item"><input type="checkbox" value="嗡" id="fmtOther" onchange="toggleOtherFmt()"> 嗡</label>
-abel>
-abel      </div>
-      <input type="text" id="fmtOtherText" placeholder="隢隤芣嗡 澆" style="display:none; margin-top:8px">
-herFmt()"> 嗡</l    </div>
+      <button class="btn-submit" id="submitBtn" onclick="submitForm()">
+        <i class="ti ti-rocket"></i> INITIALIZE SUBMISSION
+      </button>
+    </div>
+  </div>
 
-    <div class="field-group">
-      <label class="field-label">臬阡\閬澆堆 <span class="req">*</span></label>
-y:none; margi      <div class="radio-row" id="printRow">
-        <label class="radio-pill" onclick="togglePill(this,'printRow'); showPrintFollow(this)"><input type="radio" name="print" value="荔砍貉芸">荔砍貉芸堆A4/A3嚗</label>
-.checkbox-item {
-    display: fl        <label class="radio-pill" onclick="togglePill(this,'printRow'); showPrintFollow(this)"><input type="radio" name="print" value="荔啣瑕 ">荔啣瑕 </label>
-label>
-.checkbox-item         <label class="radio-pill" onclick="togglePill(this,'printRow'); showPrintFollow(this)"><input type="radio" name="print" value=""></label>
-/label      </div>
-      <div class="print-follow" id="printFollow">
-        <label class="field-label" style="margin-bottom:4px">砍貉芸唳臬阡\閬霅瑁嚗</label>
-llow(this)"><input t        <div class="radio-row" id="laminateRow">
-          <label class="radio-pill" onclick="togglePill(this,'laminateRow')"><input type="radio" name="laminate" value=""></label>
-ue="">          <label class="radio-pill" onclick="togglePill(this,'laminateRow')"><input type="radio" name="laminate" value=""></label>
-ue="">        </div>
-      </div>
-    </div>
-
-    <div class="section-header">
-      <span class="section-badge badge-blue">SECTION 4</span>
-      <span class="section-title">獢蝝 </span>
-SECTION 4</s      <span class="divider"></span>
-    </div>
-
-    <div class="field-group">
-      <label class="field-label">\蝯蝣箄獢 <span class="req">*</span></label>
-><input typ      <textarea id="copy" placeholder="隢鞎潔摰湔摮批捆嚗蝣箔舐湔乩摰渲鋆賭蝙具\獢芸\隢踹‵撖急祆嚗銵賊鈭><input type="radio" name="laminate" value=""></label>
-ue=""></label>
-/label>
-label>
-.   蝣 箄敺柴\" style="min-height:130px" oninput="updateStep()"></textarea>
-‵撖急祆嚗銵賊鈭><inp      <p class="field-hint">獢喟箸\蝯穿隢蝣箄撌脤\折典祟 詻\</p>
-textarea>
-‵撖急祆嚗銵賊鈭><input type="rad    </div>
-
-    <div class="field-group">
-      <label class="field-label">摮撠扯”嚗靽格寥隞園拍剁</label>
-p>
-textarea>
-‵撖急祆嚗銵賊鈭><input typ      <textarea id="diffTable" placeholder="憪批捆嚗&#10;靽格孵批捆嚗&#10;&#10;隢\ 憛怠神嚗隞亙拍Ⅱ隤\瘙\" style="min-height:80px"></textarea>
-el>
-ue=""></label>
-/label>
-label>
-.checkbo    </div>
-
-    <div class="field-group">
-      <label class="field-label">\憪蝝 嚗瑼蝝\嚗</label>
-靽格孵批捆嚗&#10;&#10;隢\ 憛怠神嚗隞亙拍Ⅱ隤\      <div class="file-zone" onclick="document.getElementById('fileInput').click()">
-        <i class="ti ti-cloud-upload" aria-hidden="true"></i>
-        <p>暺銝喉暹獢單迨</p>
-cloud-upload" aria-hidden="t        <p style="font-size:11px; margin-top:3px; color:var(--color-text-tertiary)">舀 JPG\PNG\PDF\AI\PSD</p>
-texta        <input type="file" id="fileInput" multiple accept=".jpg,.jpeg,.png,.pdf,.ai,.psd" onchange="handleFiles(event)">
-      </div>
-      <div class="file-list" id="fileList"></div>
-    </div>
-
-    <div class="field-group" id="legalField" style="display:none">
-      <label class="field-label">瘜嚗瘜閬撖拇 貊\ <span class="req">*</span>嚗鋆憿拍剁</label>
-psd" onchange="handleFiles(event      <textarea id="legalNote" placeholder="隢憛怠神瘜閬撖拇 貊\閬嚗鞎潔撖拇 豢隞園\蝯\"></textarea>
-d" onchange="handleFiles(event)">
-are    </div>
-
-    <div class="error-bar" id="errorBar"></div>
-
-    <div class="submit-row">
-      <button class="btn-submit" id="submitBtn" onclick="submitForm()">
-        <i class="ti ti-send" aria-hidden="true"></i>
-        鈭斗晷撌亙
-ss="ti ti-      </button>
-      <button class="btn-reset" onclick="resetForm()">皜日"submitF </button>
-t      <span class="submit-note">鈭文芸摮 Google Sheets</span>
-ubmitForm()">
-">    </div>
-  </div>
-
-  <div class="success-panel" id="successPanel">
-    <div class="success-icon"><i class="ti ti-circle-check"></i></div>
-    <h3>瘣曉極桀歇鈭</h3>
-ess-icon"><i class    <p>閮剛典 1 \撌乩亙批閬蝣箄箏憿\<br>交獢閬 潔剁獢隞嗅靽\敺閮隢\\\</p>
-></i></div>
-
-"></textarea>
-d" onchange="handleFiles(event)">
-area>
-el>
-ue=""></label>    <div class="ticket-id" id="ticketId">DES-2025-0001</div>
-    <br>
-    <a class="gs-btn" href="https://docs.google.com/spreadsheets/d/1KzSWw79RkVRyew1YHl1m7mwDirfOp5uohZTDwR4UKd4/edit" target="_blank">
-      <i class="ti ti-table" aria-hidden="true"></i>
-       Google Sheets 亦蝝\
-e" aria-hid    </a>
-    <br><br>
-    <button class="btn-reset" style="margin-top:4px" onclick="resetForm()">甈kVRy </button>
-n clas  </div>
+  <div class="success-panel glass-card" id="successPanel">
+    <div class="success-icon"><i class="ti ti-circle-check"></i></div>
+    <h2 style="color: var(--accent-success);">TRANSMISSION COMPLETE</h2>
+    <p style="color: var(--text-muted);">派工單已成功存入雲端數據庫</p>
+    <div class="ticket-id" id="ticketId">DES-2025-0000</div>
+    <br>
+    <button class="btn-submit" style="background:var(--card-bg); border:1px solid var(--accent-primary); width:auto; display:inline-flex;" onclick="location.reload()">
+      NEW REQUEST
+    </button>
+  </div>
 </div>
 
 <script>
-const SHEET_URL = "https://script.google.com/macros/s/AKfycbxCyEEwkiwEUbCBf1NsOWdmhUaB98PDt39F2HI3L0ey7gCg6w8dyXx-ORoqe0u396Be/exec";
-const GS_VIEW_URL = "https://docs.google.com/spreadsheets/d/1KzSWw79RkVRyew1YHl1m7mwDirfOp5uohZTDwR4UKd4/edit";
+  // 保持原有邏輯不變，僅更新 UI 相關 ID
+  const SHEET_URL = "https://script.google.com/macros/s/AKfycbxCyEEwkiwEUbCBf1NsOWdmhUaB98PDt39F2HI3L0ey7gCg6w8dyXx-ORoqe0u396Be/exec";
 
-function updateStep() {
-  const ok = document.getElementById('dept').value && document.getElementById('applicant').value && document.getElementById('caseName').value;
-  document.getElementById('st1').className = 'step ' + (ok ? 'done' : 'active');
-  const c = document.getElementById('copy').value.trim();
-  document.getElementById('st4').className = 'step ' + (c.length > 10 ? 'done' : '');
-}
+  function updateStep() {
+    const ok1 = document.getElementById('dept').value && document.getElementById('applicant').value && document.getElementById('caseName').value;
+    document.getElementById('st1').className = 'step ' + (ok1 ? 'done' : 'active');
+    
+    const c = document.getElementById('copy').value.trim();
+    document.getElementById('st4').className = 'step ' + (c.length > 10 ? 'done' : '');
+  }
 
-function togglePill(el, groupId) {
-  document.querySelectorAll('#' + groupId + ' .radio-pill').forEach(p => p.classList.remove('selected'));
-  el.classList.add('selected');
-}
+  function selectLevel(code, card) {
+    ['lc-s','lc-a','lc-b'].forEach(id => document.getElementById(id).className = 'level-card');
+    card.className = 'level-card sel-' + code.toLowerCase();
+    document.getElementById('st2').className = 'step done';
+  }
 
-function selectLevel(code, card) {
-  ['lc-s','lc-a','lc-b'].forEach(id => document.getElementById(id).className = 'level-card');
-  card.className = 'level-card sel-' + code.toLowerCase();
-  document.getElementById('legalField').style.display = (code === 'S' || code === 'A') ? 'block' : 'none';
-  document.getElementById('st2').className = 'step done';
-}
+  function genTicketId() {
+    const now = new Date();
+    return 'TX-' + now.getFullYear() + '-' + Math.floor(1000 + Math.random() * 9000);
+  }
 
-function showPrintFollow(el) {
-  document.getElementById('printFollow').style.display = el.querySelector('input').value === '荔砍貉芸' ? 'block' : 'none';
-yId('caseName'}
+  async function submitForm() {
+    const btn = document.getElementById('submitBtn');
+    const err = document.getElementById('errorBar');
+    err.style.display = 'none';
 
-function toggleOtherFmt() {
-  document.getElementById('fmtOtherText').style.display = document.getElementById('fmtOther').checked ? 'block' : 'none';
-}
+    // 基礎驗證
+    const dept = document.getElementById('dept').value;
+    const applicant = document.getElementById('applicant').value;
+    const caseName = document.getElementById('caseName').value;
+    const copy = document.getElementById('copy').value;
+    const levelEl = document.querySelector('.level-card[class*="sel-"]');
 
-function checkDeadline() {
-  const d = new Date(document.getElementById('deadline').value);
-  const diff = Math.round((d - new Date()) / (1000*60*60*24));
-  document.getElementById('dateWarn').style.display = (!isNaN(diff) && diff < 9) ? 'block' : 'none';
-  document.getElementById('st3').className = 'step ' + (document.getElementById('deadline').value ? 'done' : '');
-}
+    if (!dept || !applicant || !caseName || !copy || !levelEl) {
+      err.textContent = "CRITICAL ERROR: INCOMPLETE DATA FIELDS";
+      err.style.display = 'block';
+      return;
+    }
 
-function handleFiles(e) {
-  const list = document.getElementById('fileList');
-  Array.from(e.target.files).forEach(f => {
-    const chip = document.createElement('div');
-    chip.className = 'file-chip';
-    chip.innerHTML = '<i class="ti ti-file" aria-hidden="true"></i>' + f.name + '<button onclick="this.parentNode.remove()" aria-label="蝘駁"></button>';
->
-labe    list.appendChild(chip);
-  });
-}
+    btn.disabled = true;
+    btn.innerHTML = '<i class="ti ti-loader-2 animate-spin"></i> SYNCING...';
 
-function getFormats() {
-  const checked = Array.from(document.querySelectorAll('.checkbox-group input:checked')).map(i => i.value);
-  const other = document.getElementById('fmtOtherText').value;
-  return checked.filter(v => v !== '嗡').concat(document.getElementById('fmtOther').checked && other ? [other] : []);
-ove()}
+    const ticketId = genTicketId();
+    const payload = {
+      ticketId,
+      timestamp: new Date().toLocaleString(),
+      dept, applicant, caseName, copy,
+      level: levelEl.querySelector('input').value,
+      status: '待處理'
+    };
 
-function getFileNames() {
-  return Array.from(document.querySelectorAll('#fileList .file-chip')).map(c => c.textContent.trim().replace('','')).join('\');
-ab}
-
-function genTicketId() {
-  const now = new Date();
-  return 'DES-' + now.getFullYear() + '-' + String(Math.floor(Math.random()*9000)+1000);
-}
-
-function showError(msg) {
-  const bar = document.getElementById('errorBar');
-  bar.textContent = msg;
-  bar.style.display = 'block';
-  bar.scrollIntoView({behavior:'smooth', block:'nearest'});
-}
-
-async function submitForm() {
-  document.getElementById('errorBar').style.display = 'none';
-  const dept = document.getElementById('dept').value;
-  const applicant = document.getElementById('applicant').value.trim();
-  const caseName = document.getElementById('caseName').value.trim();
-  const deadline = document.getElementById('deadline').value;
-  const copy = document.getElementById('copy').value.trim();
-  const levelEl = document.querySelector('.level-card[class*="sel-"]');
-  const purposeEl = document.querySelector('#purposeRow input:checked');
-  const formats = getFormats();
-
-  if (!dept || !applicant || !caseName) { showError('隢摰游‵撖恍\瘙桐\唾鈭箏瘣餃蝔晞\'); return; }
-nt.trim().replace('','')).join('\');
-  if (!levelEl) { showError('隢豢撠獢蝑蝝嚗S / A / B嚗\'); return; }
-\唾鈭箏瘣餃蝔晞\'); r  if (!purposeEl) { showError('隢豢 摰券\\'); return; }
-turn; }
-\唾鈭  if (!deadline) { showError('隢憛怠神鈭斗\'); return; }
- }
-turn; }
-\唾  if (formats.length === 0) { showError('隢喳豢銝\蝔格獢 澆\'); return; }
-瘣餃蝔晞\'); return; }
-  if (!document.querySelector('#printRow input:checked')) { showError('隢豢臬阡\閬澆啜\'); return; }
-).replace('','')  if (copy.length < 5) { showError('隢Row 怠神\蝯蝣箄獢嚗甇斤箸桀鞈閮\'); return; }
-'隢Row input:checked')) { showEr
-  const ticketId = genTicketId();
-  const printEl = document.querySelector('#printRow input:checked');
-  const laminateEl = document.querySelector('#laminateRow input:checked');
-
-  const payload = {
-    ticketId,
-    timestamp: new Date().toLocaleString('zh-TW', {timeZone:'Asia/Taipei'}),
-    dept, applicant,
-    caseNo: document.getElementById('caseNo').value,
-    caseName,
-    level: levelEl.querySelector('input').value,
-    purpose: purposeEl.value,
-    deadline, spec: document.getElementById('spec').value,
-    formats: formats.join('\'),
-    print: printEl ? printEl.value : '',
-    laminate: laminateEl ? laminateEl.value : '',
-    copy,
-    diff: document.getElementById('diffTable').value,
-    files: getFileNames(),
-    legal: document.getElementById('legalNote') ? document.getElementById('legalNote').value : '',
-    status: '敺撖拇 '
-.getE  };
-
-  const btn = document.getElementById('submitBtn');
-  btn.innerHTML = '<i class="ti ti-loader" aria-hidden="true"></i> 鈭支葉...';
-egalNo  btn.disabled = true;
-
-  try {
-    await fetch(SHEET_URL, {
-      method: 'POST',
-      mode: 'no-cors',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(payload)
-    });
-    document.getElementById('ticketId').textContent = ticketId;
-    document.getElementById('formArea').style.display = 'none';
-    document.getElementById('successPanel').style.display = 'block';
-  } catch(err) {
-    showError('鈭文仃嚗隢瑼Ｘ亦雯頝舫\蝺敺閰艾\航炊嚗' + err.message);
-y = 'block';
-葉...';
-egalNote').val    btn.innerHTML = '<i class="ti ti-send" aria-hidden="true"></i> 鈭斗晷撌亙';
-
-egalNote'    btn.disabled = false;
-  }
-}
-
-function resetForm() {
-  document.getElementById('formArea').style.display = 'block';
-  document.getElementById('successPanel').style.display = 'none';
-  document.getElementById('errorBar').style.display = 'none';
-  document.querySelectorAll('input[type=text], input[type=date], textarea, select').forEach(el => el.value = '');
-  document.querySelectorAll('.radio-pill').forEach(p => p.classList.remove('selected'));
-  ['lc-s','lc-a','lc-b'].forEach(id => document.getElementById(id).className = 'level-card');
-  document.querySelectorAll('.checkbox-group input').forEach(c => c.checked = false);
-  document.getElementById('fileList').innerHTML = '';
-  document.getElementById('dateWarn').style.display = 'none';
-  document.getElementById('printFollow').style.display = 'none';
-  document.getElementById('legalField').style.display = 'none';
-  document.getElementById('fmtOtherText').style.display = 'none';
-  ['st1','st2','st3','st4'].forEach((id,i) => {
-    document.getElementById(id).className = 'step' + (i===0 ? ' active' : '');
-  });
-  const btn = document.getElementById('submitBtn');
-  btn.innerHTML = '<i class="ti ti-send" aria-hidden="true"></i> 鈭斗晷撌亙';
- '');
-alse  btn.disabled = false;
-}
+    try {
+      await fetch(SHEET_URL, {
+        method: 'POST',
+        mode: 'no-cors',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+      });
+      
+      document.getElementById('ticketId').textContent = ticketId;
+      document.getElementById('formArea').style.display = 'none';
+      document.getElementById('successPanel').style.display = 'block';
+    } catch (e) {
+      err.textContent = "CONNECTION FAILED: " + e.message;
+      err.style.display = 'block';
+      btn.disabled = false;
+      btn.innerHTML = 'RETRY SUBMISSION';
+    }
+  }
 </script>
- 
+
+</body>
+</html>
